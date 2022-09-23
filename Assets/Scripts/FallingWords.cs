@@ -155,9 +155,16 @@ public class FallingWords : MonoBehaviour
         Debug.Log("Detected word code: " + word);
     }
 
+    //Execute Only if server ////////////////////////////////////
     public async void RequestToSpawnWords()
     {
-        //Execute Only if server
+        //Destroy previous words & set new ones
+        foreach(WordToEntityStructure word in WordsOnScreen)
+        {
+            Destroy(word.gameObject);
+        }
+        WordsOnScreen.Clear();
+
         for (int i = 0; i < 5; i++)
         {
             if(apprunning)
@@ -174,14 +181,25 @@ public class FallingWords : MonoBehaviour
                 break;
             }
         }
+
+        Debug.Log($"Words Cleared & New Ones Set, remaining in playable list = {AdaptiveWordsVolume.Count}");
     }
+    //Execute Only if server ///////////////////////////////////
     public void RequestToReplaceWordOnSlot(int slotIndex)
     {
+        //Destroy previous word at target index & replace at index
+        GameObject preparedforDestroy = WordsOnScreen[slotIndex].gameObject;
+        WordsOnScreen.RemoveAt(slotIndex);
+        Destroy(preparedforDestroy);
+        
         int targetedIndex = UnityEngine.Random.Range(0, AdaptiveWordsVolume.Count - 1);
         string newWord = AdaptiveWordsVolume[targetedIndex];
         AdaptiveWordsVolume.RemoveAt(targetedIndex);
         ServerCommands.instance.SpawnWordForAll(newWord, slotIndex);
+
+        Debug.Log($"Word Replaced at index {slotIndex}, remaining in playable list = {AdaptiveWordsVolume.Count}");
     }
+
     public void SpawnWord(string newWord,int iteration)
     {
         WordsOnScreen.Add(Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100,MaxSpawnHorizontalDistance * 100),0,0), Quaternion.identity, WordTransformParent).GetComponent<WordToEntityStructure>());
