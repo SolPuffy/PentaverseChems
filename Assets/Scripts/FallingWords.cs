@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor.Build.Content;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -80,39 +81,30 @@ public class FallingWords : MonoBehaviour
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
         AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
     }
+
     //Workaround wierd bug that ocurrs when stopping Async/Await while it's running with a delay
     private void OnApplicationQuit()
     {
         apprunning = false;
     }
-    private void ClearWords()
+
+    //Detect Keyboard Inputs & return their keycodes (mare grija cu asta ca dupa zic astia ca bagam key loggers xd)
+    public void OnGUI()
     {
-        foreach(Transform word in WordTransformParent.gameObject.GetComponentsInChildren<Transform>())
+        //Disable Key Logging while inputfield is active
+        if(InputFieldState)
         {
-            DestroyImmediate(word.gameObject);
+            return;
         }
-    }
-    //
-    //Detect Keyboard Inputs & return their keycodes (mare grija cu asta ca dupa zic astia ca bagam key loggers)
-    public async void OnGUI()
-    {
-        while (true)
+        Event keyevent = Event.current;
+        if (keyevent.isKey && Input.GetKeyDown(keyevent.keyCode) && !InputFieldState)
         {
-            Event keyevent = Event.current;
-            try
+            if (keyevent.keyCode == KeyCode.Return)
             {
-                if (keyevent.isKey && Input.GetKeyDown(keyevent.keyCode) && !InputFieldState)
-                {
-                    if(keyevent.keyCode == KeyCode.Return)
-                    {
-                        AccessInputField();
-                        return;
-                    }
-                    CheckLetterOnScreen(keyevent);
-                }
+                AccessInputField(); //closing of inputfield is set in the object's event field "on end edit"
+                return;
             }
-            catch { }
-            await Task.Yield();
+            CheckLetterOnScreen(keyevent);
         }
     }
 
@@ -147,14 +139,119 @@ public class FallingWords : MonoBehaviour
 
     public void CheckLetterOnScreen(Event keyevent)
     {
-        Debug.Log("Detected key code: " + keyevent.keyCode);
+        ServerCommands.instance.SendKeyToServer(keyevent);
+        //Debug.Log("Detected key code: " + keyevent.keyCode);
+    }
+    public void ReceiveLetterFromPlayer(Event keyevent,string PlayerUUID)
+    {
+        bool missed = true;
+        char letter = keyevent.keyCode.ToString().ToLower()[0];
+        for (int i=0;i<LettersOnScreen.Count;i++)
+        {
+            if (letter == LettersOnScreen[i].Letter)
+            {
+                missed = false;
+                StruckLetter(LettersOnScreen[i].Letter, PlayerUUID);
+            }
+            else
+            {
+                //do nothing and wait for loop to finish
+            }
+        }
+        if(missed)
+        {
+            MissedLetter(PlayerUUID,letter);
+        }
+    }
+    //parcurge toate literele de pe ecran
+    //parcurge toate cuvintele de pe ecran si verifica daca litera apasata se regaseste in cuvinte
+    //dezactiveaza index-ul literei lovite si scoate cover-ul
+    public void StruckLetter(char LetterStruck,string PlayerUUID)
+    {
+        int Hits = 0;
+        for (int z = 0; z < 2; z++)
+        {
+            for (int i = 0; i < LettersOnScreen.Count; i++)
+            {
+                if (LettersOnScreen[i].Letter == LetterStruck)
+                {
+                    Hits++;
+                    LettersOnScreen.RemoveAt(i);
+                }
+            }
+        }
+        ServerCommands.instance.ReturnKeyInfoToPlayers(LetterStruck);
+
+        AwardPoints(PlayerUUID, true, Hits, LetterStruck.ToString());
     }
 
+    public void MissedLetter(string PlayerUUID,char letter)
+    {
+        AwardPoints(PlayerUUID, false, 1,letter.ToString());
+    }
+
+    public void AwardPoints(string PlayerUUID,bool PositivePoints,int quantity,string LetterWord,bool ContainsWord = false)
+    {
+        Debug.Log($"Hits quantity :{PositivePoints} {quantity}");
+        //build a system that awards different/multiple points based on type and quantity or if it is a word award extra
+        ServerCommands.instance.UpdatePointsBoard();
+    }
     public void CheckWordOnScreen(string word)
     {
+        ServerCommands.instance.SendWordToServer(word);
         Debug.Log("Detected word code: " + word);
     }
-
+    public void ReceiveWordFromPlayer(string word,string PlayerUUID)
+    {
+        int Hits = 0;
+        int indexHit = 0;
+        char[] chars = word.ToCharArray();
+        bool missed = true;
+        for(int i=0;i<WordsOnScreen.Count;i++)
+        {
+            if (WordsOnScreen[i].Word == word)
+            {
+                Hits++;
+                indexHit = i;
+                missed = false;
+                for(int y=0;y< WordsOnScreen[i].Word.Length;y++)
+                {
+                    for(int k=0;k<LettersOnScreen.Count;k++)
+                    {
+                        if (chars[y] == LettersOnScreen[k].Letter)
+                        {
+                            LettersOnScreen.RemoveAt(k);
+                            break;
+                        }
+                    }
+                    ServerCommands.instance.ReturnWordInfoToPlayers(indexHit);
+                }
+            }
+            else
+            {
+                //do nothing, wait for loop to end
+            }
+        }
+        WordsOnScreen.RemoveAt(indexHit);
+        if (missed)
+        {
+            AwardPoints(PlayerUUID, false, 1, word, true);
+        }
+        else
+        {
+            AwardPoints(PlayerUUID, true, Hits, word, true);
+        }
+    }
+    public void BreakAndSaveWordLetters(string wordToBreak, int iteration)
+    {
+        for(int i=0;i<wordToBreak.Length;i++)
+        {
+            LetterToWordStructure nStruct = new LetterToWordStructure();
+            nStruct.Letter = wordToBreak[i];
+            nStruct.IndexOfWord = iteration;
+            LettersOnScreen.Add(nStruct);
+        }
+    }
     //Execute Only if server ////////////////////////////////////
     public async void RequestToSpawnWords()
     {
@@ -172,17 +269,54 @@ public class FallingWords : MonoBehaviour
                 int targetedIndex = UnityEngine.Random.Range(0, AdaptiveWordsVolume.Count - 1);
                 string newWord = AdaptiveWordsVolume[targetedIndex];
                 AdaptiveWordsVolume.RemoveAt(targetedIndex);
+
+                BreakAndSaveWordLetters(newWord, i);
+
                 ServerCommands.instance.SpawnWordForAll(newWord, i);
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
             else
             {
                 Debug.Log("WordSpawn Operaction has been canceled");
-                break;
+                return;
             }
         }
 
-        Debug.Log($"Words Cleared & New Ones Set, remaining in playable list = {AdaptiveWordsVolume.Count}");
+        CrumbleWordBits(false);
+
+        //Debug.Log($"Words Cleared & New Ones Set, remaining in playable list = {AdaptiveWordsVolume.Count}");
+    }
+    public void CrumbleWordBits(bool isTargeted, int target = -1)
+    {
+        //Targets a single word for 'crumble' as part of the "RequestToReplaceWordOnSlot" command
+        if (isTargeted)
+        {
+            int targetedindex = UnityEngine.Random.Range(0, 4);
+            for (int y = 0; y < LettersOnScreen.Count; y++)
+            {
+                if (LettersOnScreen[y].IndexOfWord == target && LettersOnScreen[y].Letter == WordsOnScreen[target].Word[targetedindex])
+                {
+                    LettersOnScreen.RemoveAt(y);
+                }
+            }
+            WordsOnScreen[target].LetterCovers[targetedindex].gameObject.SetActive(false);
+        }
+        //Targets all the words for 'crumble' as part of the " RequestToSpawnWords" command
+        else
+        {
+            for (int i = 0; i < WordsOnScreen.Count; i++)
+            {
+                int targetedindex = UnityEngine.Random.Range(0, 4);
+                for (int y = 0; y < LettersOnScreen.Count; y++)
+                {
+                    if (LettersOnScreen[y].IndexOfWord == i && LettersOnScreen[y].Letter == WordsOnScreen[i].Word[targetedindex])
+                    {
+                        LettersOnScreen.RemoveAt(y);
+                    }
+                }
+                WordsOnScreen[i].LetterCovers[targetedindex].gameObject.SetActive(false);
+            }
+        }
     }
     //Execute Only if server ///////////////////////////////////
     public void RequestToReplaceWordOnSlot(int slotIndex)
@@ -197,7 +331,9 @@ public class FallingWords : MonoBehaviour
         AdaptiveWordsVolume.RemoveAt(targetedIndex);
         ServerCommands.instance.SpawnWordForAll(newWord, slotIndex);
 
-        Debug.Log($"Word Replaced at index {slotIndex}, remaining in playable list = {AdaptiveWordsVolume.Count}");
+        CrumbleWordBits(true,slotIndex);
+
+        //Debug.Log($"Word Replaced at index {slotIndex}, remaining in playable list = {AdaptiveWordsVolume.Count}");
     }
 
     public void SpawnWord(string newWord,int iteration)
@@ -208,9 +344,6 @@ public class FallingWords : MonoBehaviour
 
         WordsOnScreen[newIndexer].PointToTravelTo = WordToGoLocations[iteration].position;
         WordsOnScreen[newIndexer].TravelSpeed = WordFallingSpeed;
-
-        //AdaptiveWordsVolume.RemoveAt(IndexOfWord);
-        //remove word as soon as it's spawned for everyone
     }
 
 }

@@ -16,19 +16,32 @@ public class WordToEntityStructure : MonoBehaviour
     public Vector3 PointToTravelTo;
     public float TravelSpeed = 0.1f;
 
+    private bool keepUpdate = true;
+
     private void Awake()
     {
         MemorizeSpawnLocation = new Vector3(transform.position.x,transform.position.y,transform.position.z);
     }
-
-    private void Update()
+    private void Start()
     {
-        if(Vector3.Distance(MemorizeSpawnLocation,PointToTravelTo) > 0.1f)
-        {
-            WordObject.transform.position = Vector3.Lerp(transform.position, PointToTravelTo, TravelSpeed * Time.deltaTime);
-        }
+        FakeUpdate();
     }
-
+    public async void FakeUpdate()
+    {
+        while(keepUpdate)
+        {
+            if (Vector3.Distance(transform.position, PointToTravelTo) > 1f)
+            {
+                WordObject.transform.position = Vector3.Lerp(transform.position, PointToTravelTo, TravelSpeed * Time.deltaTime);
+            }
+            else
+            {
+                break;
+            }
+            await Task.Yield();
+        }
+        
+    }    
     public void SendWordToLetters(string word)
     {
         Word = word;
@@ -36,5 +49,10 @@ public class WordToEntityStructure : MonoBehaviour
         {
             Letters[i].text = Word[i].ToString();
         }
+    }
+
+    private void OnDestroy()
+    {
+        keepUpdate = false;
     }
 }
