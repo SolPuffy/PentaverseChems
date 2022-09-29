@@ -58,11 +58,11 @@ public class FallingWords : MonoBehaviour
     public Transform WordTransformParent;
     public GameObject WordEntity;
     public TMP_InputField WordInputField;
-    private bool InputFieldState = false;
 
     [Header("Other")]
     public RectTransform[] WordToGoLocations = new RectTransform[5];
     private bool apprunning = false;
+    [HideInInspector] public bool InputFieldState = false;
 
     ////////////////////////////////////////////////////////////
 
@@ -98,61 +98,6 @@ public class FallingWords : MonoBehaviour
     private void OnApplicationQuit()
     {
         apprunning = false;
-    }
-
-    //Detect Keyboard Inputs & return their keycodes (mare grija cu asta ca dupa zic astia ca bagam key loggers xd)
-    public void OnGUI()
-    {
-        //Disable Key Logging while inputfield is active
-        if(InputFieldState)
-        {
-            return;
-        }
-        Event keyevent = Event.current;
-        if (keyevent.isKey && Input.GetKeyDown(keyevent.keyCode) && !InputFieldState)
-        {
-            if (keyevent.keyCode == KeyCode.Return)
-            {
-                AccessInputField(); //closing of inputfield is set in the object's event field "on end edit"
-                return;
-            }
-            CheckLetterOnScreen(keyevent);
-        }
-    }
-
-    public void AccessInputField()
-    {
-        //if not open, open the input field
-        if(!InputFieldState)
-        {
-            InputFieldState = true;
-            WordInputField.gameObject.SetActive(true);
-            WordInputField.text = "";
-            WordInputField.Select();
-
-        }
-        //else close it and verify the word
-        else
-        {
-            InputFieldState = false;
-            if(WordInputField.text.Length < 5)
-            {
-                //cannot input word with less than 5 characters
-                Debug.Log("Cannot input word with less than 5 characters");
-                return;
-            }
-            else
-            {
-                CheckWordOnScreen(WordInputField.text);
-            }
-            WordInputField.gameObject.SetActive(false);
-        }
-    }
-
-    public void CheckLetterOnScreen(Event keyevent)
-    {
-        ServerCommands.instance.SendKeyToServer(keyevent);
-        //Debug.Log("Detected key code: " + keyevent.keyCode);
     }
     public void ReceiveLetterFromPlayer(Event keyevent,string PlayerUUID)
     {
@@ -192,7 +137,7 @@ public class FallingWords : MonoBehaviour
                 }
             }
         }
-        ServerCommands.instance.ReturnKeyInfoToPlayers(LetterStruck);
+        PlayerToServerCommands.instance.ReturnKeyInfoToPlayers(LetterStruck);
 
         AwardPoints(PlayerUUID, true, Hits, LetterStruck.ToString());
     }
@@ -206,13 +151,9 @@ public class FallingWords : MonoBehaviour
     {
         Debug.Log($"Hits quantity :{PositivePoints} {quantity}");
         //build a system that awards different/multiple points based on type and quantity or if it is a word award extra
-        ServerCommands.instance.UpdatePointsBoard();
+        PlayerToServerCommands.instance.UpdatePointsBoard();
     }
-    public void CheckWordOnScreen(string word)
-    {
-        ServerCommands.instance.SendWordToServer(word);
-        Debug.Log("Detected word code: " + word);
-    }
+    
     public void ReceiveWordFromPlayer(string word,string PlayerUUID)
     {
         int Hits = 0;
@@ -237,7 +178,7 @@ public class FallingWords : MonoBehaviour
                         }
                     }
                     WordsOnScreen[indexHit].canBeColelcted = false;
-                    ServerCommands.instance.ReturnWordInfoToPlayers(indexHit);
+                    PlayerToServerCommands.instance.ReturnWordInfoToPlayers(indexHit);
                 }
             }
             else
@@ -269,11 +210,12 @@ public class FallingWords : MonoBehaviour
     public async void RequestToSpawnWords()
     {
         //Destroy previous words & set new ones
-        foreach(WordToEntityStructure word in WordsOnScreen)
+        foreach (WordToEntityStructure word in WordsOnScreen)
         {
             Destroy(word.gameObject);
         }
         WordsOnScreen.Clear();
+        PlayerToServerCommands.instance.CleanPlayersLists();
 
         for (int i = 0; i < 5; i++)
         {
@@ -285,7 +227,7 @@ public class FallingWords : MonoBehaviour
 
                 BreakAndSaveWordLetters(newWord, i);
 
-                ServerCommands.instance.SpawnWordForAll(newWord, i);
+                PlayerToServerCommands.instance.SpawnWordForAll(newWord, i);
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
             else
@@ -343,17 +285,19 @@ public class FallingWords : MonoBehaviour
         GameObject preparedforDestroy = WordsOnScreen[slotIndex].gameObject;
         WordsOnScreen.RemoveAt(slotIndex);
         Destroy(preparedforDestroy);
-        
+        PlayerToServerCommands.instance.CleanPlayersListIndex(slotIndex);
+
         int targetedIndex = UnityEngine.Random.Range(0, AdaptiveWordsVolume.Count - 1);
         string newWord = AdaptiveWordsVolume[targetedIndex];
         AdaptiveWordsVolume.RemoveAt(targetedIndex);
-        ServerCommands.instance.SpawnWordForAll(newWord, slotIndex);
+
+        SpawnWord(newWord, slotIndex);
+        PlayerToServerCommands.instance.SpawnWordForAll(newWord, slotIndex);
 
         CrumbleWordBits(true,slotIndex);
 
         //Debug.Log($"Word Replaced at index {slotIndex}, remaining in playable list = {AdaptiveWordsVolume.Count}");
     }
-
     public void SpawnWord(string newWord,int iteration)
     {
         WordsOnScreen.Add(Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100,MaxSpawnHorizontalDistance * 100),0,0), Quaternion.identity, WordTransformParent).GetComponent<WordToEntityStructure>());
@@ -363,5 +307,4 @@ public class FallingWords : MonoBehaviour
         WordsOnScreen[newIndexer].PointToTravelTo = WordToGoLocations[iteration].position;
         WordsOnScreen[newIndexer].TravelSpeed = WordFallingSpeed;
     }
-
 }

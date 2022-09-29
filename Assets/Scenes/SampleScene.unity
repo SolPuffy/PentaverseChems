@@ -2493,7 +2493,7 @@ MonoBehaviour:
   - tenis
   AdaptiveWordsVolume: []
   AdaptiveWordSearchRange: 100
-  MaxSpawnHorizontalDistance: 9
+  MaxSpawnHorizontalDistance: 6
   DelayBetweenWords: 0.15
   WordFallingSpeed: 3.33
   DoWordCrumble: 1
@@ -2511,6 +2511,7 @@ MonoBehaviour:
   - {fileID: 633639618}
   - {fileID: 2052685396}
   - {fileID: 523424970}
+  InputFieldState: 0
 --- !u!4 &1865651914
 Transform:
   m_ObjectHideFlags: 0

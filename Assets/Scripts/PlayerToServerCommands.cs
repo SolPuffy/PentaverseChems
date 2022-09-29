@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ServerCommands : MonoBehaviour
+public class PlayerToServerCommands : MonoBehaviour
 {
-    public static ServerCommands instance;
+    public static PlayerToServerCommands instance;
     private string LocalUniqueIdentifier;
     private void Awake()
     {
@@ -82,6 +82,22 @@ public class ServerCommands : MonoBehaviour
             FallingWords.instance.WordsOnScreen[indexHit].LetterCovers[z].gameObject.SetActive(false);
             FallingWords.instance.WordsOnScreen[indexHit].Letters[z].color = Color.gray;
         }
+    }
+    //[ClientRpc]
+    public void CleanPlayersLists()
+    {
+        foreach (WordToEntityStructure word in FallingWords.instance.WordsOnScreen)
+        {
+            Destroy(word.gameObject);
+        }
+        FallingWords.instance.WordsOnScreen.Clear();
+    }
+    //[ClientRpc]
+    public void CleanPlayersListIndex(int index)
+    {
+        GameObject preparedforDestroy = FallingWords.instance.WordsOnScreen[index].gameObject;
+        FallingWords.instance.WordsOnScreen.RemoveAt(index);
+        Destroy(preparedforDestroy);
     }
     //[ClientRpc]
     public void UpdatePointsBoard()
