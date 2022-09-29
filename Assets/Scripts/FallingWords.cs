@@ -57,12 +57,10 @@ public class FallingWords : MonoBehaviour
     public RectTransform WordTransformPosition;
     public Transform WordTransformParent;
     public GameObject WordEntity;
-    public TMP_InputField WordInputField;
 
     [Header("Other")]
     public RectTransform[] WordToGoLocations = new RectTransform[5];
     private bool apprunning = false;
-    [HideInInspector] public bool InputFieldState = false;
 
     ////////////////////////////////////////////////////////////
 
@@ -227,6 +225,7 @@ public class FallingWords : MonoBehaviour
 
                 BreakAndSaveWordLetters(newWord, i);
 
+                //SpawnWord(newWord,i);
                 PlayerToServerCommands.instance.SpawnWordForAll(newWord, i);
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
@@ -291,7 +290,7 @@ public class FallingWords : MonoBehaviour
         string newWord = AdaptiveWordsVolume[targetedIndex];
         AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
-        SpawnWord(newWord, slotIndex);
+        //SpawnWord(newWord, slotIndex);
         PlayerToServerCommands.instance.SpawnWordForAll(newWord, slotIndex);
 
         CrumbleWordBits(true,slotIndex);

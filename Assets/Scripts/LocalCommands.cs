@@ -1,21 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 public class LocalCommands : MonoBehaviour
 {
+    private bool InputFieldState = false;
+    public TMP_InputField WordInputField;
     //LOCAL
     //Detect Keyboard Inputs & return their keycodes (mare grija cu asta ca dupa zic astia ca bagam key loggers xd)
     public void OnGUI()
     {
         //Disable Key Logging while inputfield is active
-        if (FallingWords.instance.InputFieldState)
+        if (InputFieldState)
         {
             return;
         }
         Event keyevent = Event.current;
-        if (keyevent.isKey && Input.GetKeyDown(keyevent.keyCode) && !FallingWords.instance.InputFieldState)
+        if (keyevent.isKey && Input.GetKeyDown(keyevent.keyCode) && !InputFieldState)
         {
             if (keyevent.keyCode == KeyCode.Return)
             {
@@ -29,19 +32,19 @@ public class LocalCommands : MonoBehaviour
     public void AccessInputField()
     {
         //if not open, open the input field
-        if (!FallingWords.instance.InputFieldState)
+        if (!InputFieldState)
         {
-            FallingWords.instance.InputFieldState = true;
-            FallingWords.instance.WordInputField.gameObject.SetActive(true);
-            FallingWords.instance.WordInputField.text = "";
-            FallingWords.instance.WordInputField.Select();
+            InputFieldState = true;
+            WordInputField.gameObject.SetActive(true);
+            WordInputField.text = "";
+            WordInputField.Select();
 
         }
         //else close it and verify the word
         else
         {
-            FallingWords.instance.InputFieldState = false;
-            if (FallingWords.instance.WordInputField.text.Length < 5)
+            InputFieldState = false;
+            if (WordInputField.text.Length < 5)
             {
                 //cannot input word with less than 5 characters
                 Debug.Log("Cannot input word with less than 5 characters");
@@ -49,9 +52,9 @@ public class LocalCommands : MonoBehaviour
             }
             else
             {
-                CheckWordOnScreen(FallingWords.instance.WordInputField.text);
+                CheckWordOnScreen(WordInputField.text);
             }
-            FallingWords.instance.WordInputField.gameObject.SetActive(false);
+            WordInputField.gameObject.SetActive(false);
         }
     }
     //LOCAL
