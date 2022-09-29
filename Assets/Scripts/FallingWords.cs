@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
@@ -24,7 +25,7 @@ public class FallingWords : MonoBehaviour
     private void Update()
     {
         //Local testing
-        if(Input.GetKeyDown(KeyCode.K))
+        if(Input.GetKeyDown(KeyCode.Alpha0))
         {
             RequestToSpawnWords();
         }
@@ -43,6 +44,7 @@ public class FallingWords : MonoBehaviour
     public float DelayBetweenWords = 1;
     [Range(0.1f, 10f)]
     public float WordFallingSpeed = 1.33f;
+    public bool DoWordCrumble = true;
 
     [HideInInspector] public List<WordToEntityStructure> WordsOnScreen = new List<WordToEntityStructure>();
     [HideInInspector] public List<LetterToWordStructure> LettersOnScreen = new List<LetterToWordStructure>();
@@ -51,6 +53,7 @@ public class FallingWords : MonoBehaviour
     public ScoringComponent ScoreManagement;
 
     [Header("Words Management")]
+    public TextAsset textFileAsset;
     public RectTransform WordTransformPosition;
     public Transform WordTransformParent;
     public GameObject WordEntity;
@@ -77,6 +80,15 @@ public class FallingWords : MonoBehaviour
     }
     private void Start()
     {
+        //ONLY RUN AS SERVER
+
+
+        if(textFileAsset != null)
+        {
+            BaseWordsVolume.Clear();
+            BaseWordsVolume = new List<string>(Regex.Split(textFileAsset.text,"[\\n]"));
+        }
+
         //Take a random chunk of "AdaptiveWordSearch" entities out of the available words to use for gameplay
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
         AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
@@ -209,7 +221,7 @@ public class FallingWords : MonoBehaviour
         bool missed = true;
         for(int i=0;i<WordsOnScreen.Count;i++)
         {
-            if (WordsOnScreen[i].Word == word)
+            if (WordsOnScreen[i].Word == word && WordsOnScreen[i].canBeColelcted)
             {
                 Hits++;
                 indexHit = i;
@@ -224,6 +236,7 @@ public class FallingWords : MonoBehaviour
                             break;
                         }
                     }
+                    WordsOnScreen[indexHit].canBeColelcted = false;
                     ServerCommands.instance.ReturnWordInfoToPlayers(indexHit);
                 }
             }
@@ -232,7 +245,7 @@ public class FallingWords : MonoBehaviour
                 //do nothing, wait for loop to end
             }
         }
-        WordsOnScreen.RemoveAt(indexHit);
+        //WordsOnScreen.RemoveAt(indexHit);
         if (missed)
         {
             AwardPoints(PlayerUUID, false, 1, word, true);
@@ -288,10 +301,15 @@ public class FallingWords : MonoBehaviour
     }
     public void CrumbleWordBits(bool isTargeted, int target = -1)
     {
+        if(!DoWordCrumble)
+        {
+            Debug.Log("Word Crumble is disabled, skipping");
+            return;
+        }
         //Targets a single word for 'crumble' as part of the "RequestToReplaceWordOnSlot" command
         if (isTargeted)
         {
-            int targetedindex = UnityEngine.Random.Range(0, 4);
+            int targetedindex = UnityEngine.Random.Range(0, 49) / 10;
             for (int y = 0; y < LettersOnScreen.Count; y++)
             {
                 if (LettersOnScreen[y].IndexOfWord == target && LettersOnScreen[y].Letter == WordsOnScreen[target].Word[targetedindex])

@@ -1096,6 +1096,7 @@ MonoBehaviour:
   MemorizeSpawnLocation: {x: 0, y: 0, z: 0}
   PointToTravelTo: {x: 0, y: 0, z: 0}
   TravelSpeed: 1
+  canBeColelcted: 1
 --- !u!1 &9214713186507382260
 GameObject:
   m_ObjectHideFlags: 0
