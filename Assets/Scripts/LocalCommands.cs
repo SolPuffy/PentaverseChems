@@ -60,14 +60,13 @@ public class LocalCommands : MonoBehaviour
     //LOCAL
     public void CheckLetterOnScreen(Event keyevent)
     {
-        PlayerToServerCommands.localPlayer.SendKeyToServer(keyevent);
-        //Debug.Log("Detected key code: " + keyevent.keyCode);
+        PlayerToServerCommands.localPlayer.SendKeyToServer(keyevent.keyCode.ToString().ToLower()[0]);
     }
     //LOCAL
     public void CheckWordOnScreen(string word)
     {
         PlayerToServerCommands.localPlayer.SendWordToServer(word);
-        Debug.Log("Detected word code: " + word);
+        //Debug.Log("Detected word code: " + word);
     }
 
     public void StartGame()

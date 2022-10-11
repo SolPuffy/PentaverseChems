@@ -124,9 +124,9 @@ public class PlayerToServerCommands : NetworkBehaviour
         }
     }    
     [Command]
-    public void SendKeyToServer(Event keyevent)
+    public void SendKeyToServer(char key)
     {
-        FallingWords.instance.ReceiveLetterFromPlayer(keyevent, LocalUniqueIdentifier);
+        FallingWords.instance.ReceiveLetterFromPlayer(key, LocalUniqueIdentifier);
     }
     [Command]
     public void SendWordToServer(string word)
@@ -149,6 +149,11 @@ public class PlayerToServerCommands : NetworkBehaviour
                 }
             }
         }
+    }
+    [ClientRpc]
+    public void ReturnWordCoversOnCrumble(int iter,int targetedindex)
+    {
+        FallingWords.instance.WordsOnScreen[iter].LetterCovers[targetedindex].gameObject.SetActive(false);
     }
     [ClientRpc]
     public void ReturnWordInfoToPlayers(int indexHit)

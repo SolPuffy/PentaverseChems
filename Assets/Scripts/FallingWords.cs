@@ -1,8 +1,10 @@
+using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -91,10 +93,13 @@ public class FallingWords : MonoBehaviour
     {
         apprunning = false;
     }
-    public void ReceiveLetterFromPlayer(Event keyevent,string PlayerUUID)
+    public void ReceiveLetterFromPlayer(char letter,string PlayerUUID)
     {
         bool missed = true;
-        char letter = keyevent.keyCode.ToString().ToLower()[0];
+
+        //DebugLog
+        Debug.Log($"Received Letter: {letter}");
+
         for (int i=0;i<LettersOnScreen.Count;i++)
         {
             if (letter == LettersOnScreen[i].Letter)
@@ -141,7 +146,7 @@ public class FallingWords : MonoBehaviour
 
     public void AwardPoints(string PlayerUUID,bool PositivePoints,int quantity,string LetterWord,bool ContainsWord = false)
     {
-        Debug.Log($"Hits quantity :{PositivePoints} {quantity}");
+        //Debug.Log($"Hits quantity :{PositivePoints} {quantity}");
         //build a system that awards different/multiple points based on type and quantity or if it is a word award extra
         PlayersList[0].playerScript.UpdatePointsBoard();
     }
@@ -152,7 +157,10 @@ public class FallingWords : MonoBehaviour
         int indexHit = 0;
         char[] chars = word.ToCharArray();
         bool missed = true;
-        for(int i=0;i<WordsOnScreen.Count;i++)
+
+        //Debug
+        Debug.Log($"Received Word: {word}");
+        for (int i=0;i<WordsOnScreen.Count;i++)
         {
             if (WordsOnScreen[i].Word == word && WordsOnScreen[i].canBeColelcted)
             {
@@ -219,7 +227,7 @@ public class FallingWords : MonoBehaviour
 
                 BreakAndSaveWordLetters(newWord, i);
 
-                //SpawnWord(newWord,i);
+                SpawnWord(newWord,i);
                 PlayersList[0].playerScript.SpawnWordForAll(newWord, i);
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
@@ -235,6 +243,7 @@ public class FallingWords : MonoBehaviour
     }
     public void CrumbleWordBits(bool isTargeted, int target = -1)
     {
+        Debug.Log(DoWordCrumble);
         if(!DoWordCrumble)
         {
             Debug.Log("Word Crumble is disabled, skipping");
@@ -248,6 +257,7 @@ public class FallingWords : MonoBehaviour
             {
                 if (LettersOnScreen[y].IndexOfWord == target && LettersOnScreen[y].Letter == WordsOnScreen[target].Word[targetedindex])
                 {
+                    Debug.Log($"Crumble letter {LettersOnScreen[y]} from word {WordsOnScreen[target].Word[targetedindex]}");
                     LettersOnScreen.RemoveAt(y);
                 }
             }
@@ -256,6 +266,7 @@ public class FallingWords : MonoBehaviour
         //Targets all the words for 'crumble' as part of the " RequestToSpawnWords" command
         else
         {
+            Debug.Log("Started Crumble Loop");
             for (int i = 0; i < WordsOnScreen.Count; i++)
             {
                 int targetedindex = UnityEngine.Random.Range(0, 4);
@@ -266,7 +277,8 @@ public class FallingWords : MonoBehaviour
                         LettersOnScreen.RemoveAt(y);
                     }
                 }
-                WordsOnScreen[i].LetterCovers[targetedindex].gameObject.SetActive(false);
+                //WordsOnScreen[i].LetterCovers[targetedindex].gameObject.SetActive(false);
+                PlayersList[0].playerScript.ReturnWordCoversOnCrumble(i,targetedindex);
             }
         }
     }
@@ -283,7 +295,7 @@ public class FallingWords : MonoBehaviour
         string newWord = AdaptiveWordsVolume[targetedIndex];
         AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
-        //SpawnWord(newWord, slotIndex);
+        SpawnWord(newWord, slotIndex);
         PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex);
 
         CrumbleWordBits(true,slotIndex);
