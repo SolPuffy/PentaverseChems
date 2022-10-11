@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 public class PlayerToServerCommands : MonoBehaviour
 {
@@ -23,12 +24,13 @@ public class PlayerToServerCommands : MonoBehaviour
         LocalUniqueIdentifier = SystemInfo.deviceUniqueIdentifier;
     }
 
-    //[ClientRpc]
+    [ClientRpc]
     public void SpawnWordForAll(string newWord,int intration)
     {
         FallingWords.instance.SpawnWord(newWord,intration);
     }
-    //ON CONNECT & [Command]
+    //ON CONNECT
+    [Command]
     public void AddNewPlayer()
     {
         Players nStruct = new Players();
@@ -36,7 +38,8 @@ public class PlayerToServerCommands : MonoBehaviour
         nStruct.Score = 0;
         FallingWords.instance.PlayersList.Add(nStruct);
     }
-    //ON DISCONNECT & [Command]
+    //ON DISCONNECT
+    [Command]
     public void removePlayer()
     {
         for(int i=0;i<FallingWords.instance.PlayersList.Count;i++)
@@ -47,17 +50,17 @@ public class PlayerToServerCommands : MonoBehaviour
             }
         }
     }    
-    //[Command]
+    [Command]
     public void SendKeyToServer(Event keyevent)
     {
         FallingWords.instance.ReceiveLetterFromPlayer(keyevent, LocalUniqueIdentifier);
     }
-    //[Command]
+    [Command]
     public void SendWordToServer(string word)
     {
         FallingWords.instance.ReceiveWordFromPlayer(word, LocalUniqueIdentifier);
     }
-    //[ClientRpc]
+    [ClientRpc]
     public void ReturnKeyInfoToPlayers(char keyInfo)
     {
         for (int z = 0; z < 2; z++)
@@ -74,7 +77,7 @@ public class PlayerToServerCommands : MonoBehaviour
             }
         }
     }
-    //[ClientRpc]
+    [ClientRpc]
     public void ReturnWordInfoToPlayers(int indexHit)
     {
         for (int z = 0; z < FallingWords.instance.WordsOnScreen[indexHit].Word.Length; z++)
@@ -83,7 +86,7 @@ public class PlayerToServerCommands : MonoBehaviour
             FallingWords.instance.WordsOnScreen[indexHit].Letters[z].color = Color.gray;
         }
     }
-    //[ClientRpc]
+    [ClientRpc]
     public void CleanPlayersLists()
     {
         foreach (WordToEntityStructure word in FallingWords.instance.WordsOnScreen)
@@ -92,14 +95,14 @@ public class PlayerToServerCommands : MonoBehaviour
         }
         FallingWords.instance.WordsOnScreen.Clear();
     }
-    //[ClientRpc]
+    [ClientRpc]
     public void CleanPlayersListIndex(int index)
     {
         GameObject preparedforDestroy = FallingWords.instance.WordsOnScreen[index].gameObject;
         FallingWords.instance.WordsOnScreen.RemoveAt(index);
         Destroy(preparedforDestroy);
     }
-    //[ClientRpc]
+    [ClientRpc]
     public void UpdatePointsBoard()
     {
 
