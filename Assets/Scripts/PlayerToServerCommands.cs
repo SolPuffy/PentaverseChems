@@ -4,41 +4,114 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
-public class PlayerToServerCommands : MonoBehaviour
+public class PlayerToServerCommands : NetworkBehaviour
 {
-    public static PlayerToServerCommands instance;
-    private string LocalUniqueIdentifier;
-    private void Awake()
-    {
-        if(instance != null)
+    public static PlayerToServerCommands localPlayer;
+    [SyncVar] public string LocalUniqueIdentifier;
+    [SyncVar] public bool HasEntered = false;
+    private void Start()
+    {        
+        if (isLocalPlayer)
         {
-            Destroy(instance);
+            localPlayer = this;            
+            if (!FallingWords.instance.GameStarted)
+            {              
+                AddNewPlayer(SystemInfo.deviceUniqueIdentifier);               
+            }
+            else
+            {
+                NetworkManager.singleton.StopClient();
+            }
         }
         else
         {
-            instance = this;
+            Debug.Log("Nu sunt local bre");
+        }
+    }    
+    public override void OnStopServer()
+    {
+        Debug.Log($"Client {name}, Identifier {LocalUniqueIdentifier} Stopped on Server");
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        if ((players.Length - 1) == 0)
+        {
+            Debug.Log($"No Players Left. Resetting ...");
+            FallingWords.instance.ResetScene();
+            return;
+        }
+
+        if (!HasEntered)
+        {
+            Debug.Log("Player tried to join with no space left");
+        }
+        else
+        {
+            removePlayer();
+            /*
+            if (HitSlapRazboi.instance.InititalSetupDone)
+            {
+               
+            }
+
+            else
+            {
+                HitSlapRazboi.instance.RemovePlayerBeforeGame(playerIndex);
+            }
+            */
         }
     }
-    private void Start()
+
+    public override void OnStartServer()
     {
-        LocalUniqueIdentifier = SystemInfo.deviceUniqueIdentifier;
+        Debug.Log($"Client {name} connected on Server");
     }
+
+    [TargetRpc]
+    public void DC()
+    {
+        NetworkManager.singleton.StopClient();
+    }   
 
     [ClientRpc]
     public void SpawnWordForAll(string newWord,int intration)
     {
         FallingWords.instance.SpawnWord(newWord,intration);
     }
-    //ON CONNECT
     [Command]
-    public void AddNewPlayer()
+    public void StartGame()
     {
-        Players nStruct = new Players();
-        nStruct.UniqueIdentifier = LocalUniqueIdentifier;
-        nStruct.Score = 0;
-        FallingWords.instance.PlayersList.Add(nStruct);
+        FallingWords.instance.StartGame();
     }
-    //ON DISCONNECT
+    [Command]
+    public void AddNewPlayer(string identifier)
+    {
+        GameObject[] Players = GameObject.FindGameObjectsWithTag("Player");
+
+        if (Players.Length > 5)
+        {
+            DC();
+        }
+        else
+        {            
+            HasEntered = true;
+            Players nStruct = new Players();
+            nStruct.playerScript = this;
+
+            for (int i = 0; i < FallingWords.instance.PlayersList.Count; i++)
+            {
+                if (FallingWords.instance.PlayersList[i].UniqueIdentifier == identifier)
+                {
+                    identifier += "a";
+                }
+            }
+
+            LocalUniqueIdentifier = nStruct.UniqueIdentifier = identifier;
+            nStruct.Score = 0;
+            FallingWords.instance.PlayersList.Add(nStruct);
+            
+        }
+    }
+   
     [Command]
     public void removePlayer()
     {

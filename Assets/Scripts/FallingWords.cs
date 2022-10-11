@@ -3,15 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.Build.Content;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 public class Players
 {
     //whatever other things
+    public PlayerToServerCommands playerScript;
     public string UniqueIdentifier;
     public int Score;
 }
@@ -21,16 +19,8 @@ public class LetterToWordStructure
     public int IndexOfWord;
 }
 public class FallingWords : MonoBehaviour
-{
-    private void Update()
-    {
-        //Local testing
-        if(Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            RequestToSpawnWords();
-        }
-    }
-    public static FallingWords instance { get; set; }
+{   
+    public static FallingWords instance { get; set; }    
     [Header("Base Script")]
     public List<string> BaseWordsVolume = new List<string>();
     [HideInInspector] public List<string> AdaptiveWordsVolume = new List<string>();
@@ -60,13 +50,16 @@ public class FallingWords : MonoBehaviour
 
     [Header("Other")]
     public RectTransform[] WordToGoLocations = new RectTransform[5];
+    public bool GameStarted = false;
     private bool apprunning = false;
 
     ////////////////////////////////////////////////////////////
 
     private void Awake()
     {
-        if(instance != null)
+        if (GameObject.Find("NetworkManager") == null) SceneManager.LoadScene(0);
+
+        if (instance != null)
         {
             Destroy(this);
         }
@@ -74,12 +67,13 @@ public class FallingWords : MonoBehaviour
         {
             instance = this;
         }
-        apprunning = true;
+
+        if (Application.isBatchMode) { Debug.Log("I Am server WordGame"); apprunning = true; }
     }
     private void Start()
     {
         //ONLY RUN AS SERVER
-
+        if (!Application.isBatchMode) return;
 
         if(textFileAsset != null)
         {
@@ -135,7 +129,7 @@ public class FallingWords : MonoBehaviour
                 }
             }
         }
-        PlayerToServerCommands.instance.ReturnKeyInfoToPlayers(LetterStruck);
+        PlayersList[0].playerScript.ReturnKeyInfoToPlayers(LetterStruck);
 
         AwardPoints(PlayerUUID, true, Hits, LetterStruck.ToString());
     }
@@ -149,7 +143,7 @@ public class FallingWords : MonoBehaviour
     {
         Debug.Log($"Hits quantity :{PositivePoints} {quantity}");
         //build a system that awards different/multiple points based on type and quantity or if it is a word award extra
-        PlayerToServerCommands.instance.UpdatePointsBoard();
+        PlayersList[0].playerScript.UpdatePointsBoard();
     }
     
     public void ReceiveWordFromPlayer(string word,string PlayerUUID)
@@ -176,7 +170,7 @@ public class FallingWords : MonoBehaviour
                         }
                     }
                     WordsOnScreen[indexHit].canBeColelcted = false;
-                    PlayerToServerCommands.instance.ReturnWordInfoToPlayers(indexHit);
+                    PlayersList[0].playerScript.ReturnWordInfoToPlayers(indexHit);
                 }
             }
             else
@@ -213,7 +207,7 @@ public class FallingWords : MonoBehaviour
             Destroy(word.gameObject);
         }
         WordsOnScreen.Clear();
-        PlayerToServerCommands.instance.CleanPlayersLists();
+        PlayersList[0].playerScript.CleanPlayersLists();
 
         for (int i = 0; i < 5; i++)
         {
@@ -226,7 +220,7 @@ public class FallingWords : MonoBehaviour
                 BreakAndSaveWordLetters(newWord, i);
 
                 //SpawnWord(newWord,i);
-                PlayerToServerCommands.instance.SpawnWordForAll(newWord, i);
+                PlayersList[0].playerScript.SpawnWordForAll(newWord, i);
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
             else
@@ -236,8 +230,7 @@ public class FallingWords : MonoBehaviour
             }
         }
 
-        CrumbleWordBits(false);
-
+        CrumbleWordBits(false);       
         //Debug.Log($"Words Cleared & New Ones Set, remaining in playable list = {AdaptiveWordsVolume.Count}");
     }
     public void CrumbleWordBits(bool isTargeted, int target = -1)
@@ -284,14 +277,14 @@ public class FallingWords : MonoBehaviour
         GameObject preparedforDestroy = WordsOnScreen[slotIndex].gameObject;
         WordsOnScreen.RemoveAt(slotIndex);
         Destroy(preparedforDestroy);
-        PlayerToServerCommands.instance.CleanPlayersListIndex(slotIndex);
+        PlayersList[0].playerScript.CleanPlayersListIndex(slotIndex);
 
         int targetedIndex = UnityEngine.Random.Range(0, AdaptiveWordsVolume.Count - 1);
         string newWord = AdaptiveWordsVolume[targetedIndex];
         AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
         //SpawnWord(newWord, slotIndex);
-        PlayerToServerCommands.instance.SpawnWordForAll(newWord, slotIndex);
+        PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex);
 
         CrumbleWordBits(true,slotIndex);
 
@@ -305,5 +298,16 @@ public class FallingWords : MonoBehaviour
 
         WordsOnScreen[newIndexer].PointToTravelTo = WordToGoLocations[iteration].position;
         WordsOnScreen[newIndexer].TravelSpeed = WordFallingSpeed;
+    }
+
+    public void StartGame()
+    {
+        GameStarted = true;
+        RequestToSpawnWords();
+    }
+
+    public void ResetScene()
+    {
+
     }
 }
