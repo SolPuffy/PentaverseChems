@@ -9,6 +9,7 @@ public class PlayerToServerCommands : NetworkBehaviour
     public static PlayerToServerCommands localPlayer;
     [SyncVar] public string LocalUniqueIdentifier;
     [SyncVar] public bool HasEntered = false;
+    public bool AllowInput = false;
     private void Start()
     {        
         if (isLocalPlayer)
@@ -60,7 +61,6 @@ public class PlayerToServerCommands : NetworkBehaviour
             */
         }
     }
-
     public override void OnStartServer()
     {
         Debug.Log($"Client {name} connected on Server");
@@ -73,9 +73,9 @@ public class PlayerToServerCommands : NetworkBehaviour
     }   
 
     [ClientRpc]
-    public void SpawnWordForAll(string newWord,int intration)
+    public void SpawnWordForAll(string newWord,int intration, bool targeted)
     {
-        FallingWords.instance.SpawnWord(newWord,intration);
+        FallingWords.instance.SpawnWord(newWord,intration,targeted);
     }
     [Command]
     public void StartGame()
@@ -85,33 +85,54 @@ public class PlayerToServerCommands : NetworkBehaviour
     [Command]
     public void AddNewPlayer(string identifier)
     {
-        GameObject[] Players = GameObject.FindGameObjectsWithTag("Player");
-
-        if (Players.Length > 5)
+        //Deny player if playercount >= 5
+        if (FallingWords.instance.PlayersList.Count >= 5)
         {
             DC();
+            return;
         }
-        else
-        {            
-            HasEntered = true;
-            Players nStruct = new Players();
-            nStruct.playerScript = this;
-
-            for (int i = 0; i < FallingWords.instance.PlayersList.Count; i++)
+        //Deny Player if ID is already present
+        foreach (Players player in FallingWords.instance.PlayersList)
+        {
+            if (player.UniqueIdentifier == identifier)
             {
-                if (FallingWords.instance.PlayersList[i].UniqueIdentifier == identifier)
-                {
-                    identifier += "a";
-                }
+                DC();
+                return;
             }
-
-            LocalUniqueIdentifier = nStruct.UniqueIdentifier = identifier;
-            nStruct.Score = 0;
-            FallingWords.instance.PlayersList.Add(nStruct);
-            
         }
+
+        HasEntered = true;
+        Players nStruct = new Players();
+        nStruct.playerScript = this;
+        LocalUniqueIdentifier = nStruct.UniqueIdentifier = identifier;
+        nStruct.Score = 0;
+        nStruct.playerUI = FallingWords.instance.PlayerListUI[FallingWords.instance.PlayersList.Count];
+        FallingWords.instance.PlayersList.Add(nStruct);
     }
-   
+    [Command]
+    public void RefreshCooldown(PlayerToServerCommands local)
+    {
+        local.UpdateCooldownTimer();
+    }
+    [TargetRpc]
+    public void UpdateCooldownTimer()
+    {
+        Debug.Log("Cooldown Set To " + FallingWords.instance.CooldownBetweenWordInputs);
+        FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
+    }
+    [ClientRpc]
+    public void ReturnCooldownSettingForAll()
+    {
+        AllowInput = true;
+        FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
+    }
+    [TargetRpc]
+    public void ReturnSetPlayersPortraits(int indexer)
+    {
+        FallingWords.instance.PlayerListUI[indexer].AccessGameObject.SetActive(true);
+        FallingWords.instance.PlayerListUI[indexer].AccessPortraitImage.color = Color.blue;
+    }    
+
     [Command]
     public void removePlayer()
     {
@@ -165,6 +186,15 @@ public class PlayerToServerCommands : NetworkBehaviour
         }
     }
     [ClientRpc]
+    public void ReturnHideWordAtTarget(int indexHit)
+    {
+        for (int z = 0; z < FallingWords.instance.WordsOnScreen[indexHit].Word.Length; z++)
+        {
+            FallingWords.instance.WordsOnScreen[indexHit].LetterCovers[z].gameObject.SetActive(true);
+            FallingWords.instance.WordsOnScreen[indexHit].Letters[z].color = Color.white;
+        }
+    }
+    [ClientRpc]
     public void CleanPlayersLists()
     {
         foreach (WordToEntityStructure word in FallingWords.instance.WordsOnScreen)
@@ -181,8 +211,8 @@ public class PlayerToServerCommands : NetworkBehaviour
         Destroy(preparedforDestroy);
     }
     [ClientRpc]
-    public void UpdatePointsBoard()
+    public void UpdatePointsBoard(int index,int UpdatedScore)
     {
-
+        FallingWords.instance.PlayerListUI[index].AccessScoreText.text = UpdatedScore.ToString();
     }
 }
