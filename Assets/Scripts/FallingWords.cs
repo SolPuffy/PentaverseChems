@@ -206,13 +206,17 @@ public class FallingWords : MonoBehaviour
     
     public void ReceiveWordFromPlayer(string word,string PlayerUUID)
     {
+
+        Debug.Log($"Word as I got it is {word}");
+
         char[] chars = word.ToCharArray();
         bool missed = true;
 
         //Debug
         for (int i=0;i<WordsOnScreen.Count;i++)
         {
-            Debug.Log($"Comparing {WordsOnScreen[i]} with {word}");
+            Debug.Log($"Wtf is going on with {word}");
+            Debug.Log($"Comparing {WordsOnScreen[i].Word} with {word}");
             if (WordsOnScreen[i].Word == word)
             {
                 Debug.Log($"FOUND word '{word}'");
@@ -360,7 +364,7 @@ public class FallingWords : MonoBehaviour
     }
     public void SpawnWord(string newWord, int iteration, bool targeted = false)
     {
-        Debug.Log($"NewWord {newWord} at index {iteration}");
+        Debug.Log($"NewWord {newWord} at index {iteration}   DRUGS   .");
         int newIndexer = 0;
         if (targeted)
         {
