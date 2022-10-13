@@ -106,7 +106,7 @@ public class FallingWords : MonoBehaviour
         bool missed = true;
 
         //DebugLog
-        //Debug.Log($"Received Letter: {letter}");
+        Debug.Log($"Received Letter: {letter} from {PlayerUUID}");
 
         for (int i=0;i<LettersOnScreen.Count;i++)
         {
@@ -206,8 +206,7 @@ public class FallingWords : MonoBehaviour
     
     public void ReceiveWordFromPlayer(string word,string PlayerUUID)
     {
-
-        //Debug.Log($"Word as I got it is {word}");
+        Debug.Log($"Received Word: {word} from {PlayerUUID}");
 
         char[] chars = word.ToCharArray();
         bool missed = true;
@@ -364,7 +363,7 @@ public class FallingWords : MonoBehaviour
     }
     public void SpawnWord(string newWord, int iteration, bool targeted = false)
     {
-        //Debug.Log($"NewWord {newWord} at index {iteration}   DRUGS   .");
+        Debug.Log($"NewWord '{newWord}' spawned at index '{iteration}'.");
         int newIndexer = 0;
         if (targeted)
         {

@@ -16,12 +16,14 @@ public class PlayerToServerCommands : NetworkBehaviour
         {
             localPlayer = this;            
             if (!FallingWords.instance.GameStarted)
-            {              
-                AddNewPlayer(SystemInfo.deviceUniqueIdentifier);               
+            {
+                Debug.Log(SystemInfo.deviceUniqueIdentifier);
+                AddNewPlayer();               
             }
             else
             {
-                NetworkManager.singleton.StopClient();
+                Debug.Log("Game has already started, disconnect");
+                DC();
             }
         }
         else
@@ -43,7 +45,7 @@ public class PlayerToServerCommands : NetworkBehaviour
 
         if (!HasEntered)
         {
-            Debug.Log("Player tried to join with no space left");
+            //Debug.Log("Player tried to join with no space left");
         }
         else
         {
@@ -63,7 +65,7 @@ public class PlayerToServerCommands : NetworkBehaviour
     }
     public override void OnStartServer()
     {
-        Debug.Log($"Client {name} connected on Server");
+        //Debug.Log($"Client {name} connected on Server");
     }
 
     [TargetRpc]
@@ -83,19 +85,24 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.StartGame();
     }
     [Command]
-    public void AddNewPlayer(string identifier)
+    public void AddNewPlayer()
     {
+        string identifier = Guid.NewGuid().ToString();
+        //Debug.Log($"Unique {identifier} trying to join");
         //Deny player if playercount >= 5
         if (FallingWords.instance.PlayersList.Count >= 5)
         {
+            Debug.Log("Too many players, disconnect");
             DC();
             return;
         }
         //Deny Player if ID is already present
         foreach (Players player in FallingWords.instance.PlayersList)
         {
+            //Debug.Log($"Comparing {player.UniqueIdentifier} to {identifier}");
             if (player.UniqueIdentifier == identifier)
             {
+                Debug.Log("ID already exists, disconnect");
                 DC();
                 return;
             }
@@ -117,7 +124,7 @@ public class PlayerToServerCommands : NetworkBehaviour
     [TargetRpc]
     public void UpdateCooldownTimer(int newCooldown)
     {
-        Debug.Log("Cooldown Set To " + newCooldown);
+        //Debug.Log("Cooldown Set To " + newCooldown);
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
     }
     [TargetRpc]
