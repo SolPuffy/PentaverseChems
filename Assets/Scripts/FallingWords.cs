@@ -388,8 +388,8 @@ public class FallingWords : MonoBehaviour
         
         for(int i=0;i<PlayersList.Count;i++)
         {
-            PlayersList[i].playerScript.ReturnCooldownInputSetting();
-            PlayersList[i].playerScript.ReturnSetPlayersPortraits(i, PlayersList[i].UniqueIdentifier);
+            PlayersList[i].playerScript.ReturnCooldownInputSetting(CooldownBetweenWordInputs);
+            PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
         }
         GameStarted = true;
         RequestToSpawnWords();

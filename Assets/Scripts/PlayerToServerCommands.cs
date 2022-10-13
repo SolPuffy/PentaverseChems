@@ -112,29 +112,24 @@ public class PlayerToServerCommands : NetworkBehaviour
     [Command]
     public void RefreshCooldown(PlayerToServerCommands local)
     {
-        local.UpdateCooldownTimer();
+        local.UpdateCooldownTimer(FallingWords.instance.CooldownBetweenWordInputs);
     }
     [TargetRpc]
-    public void UpdateCooldownTimer()
+    public void UpdateCooldownTimer(int newCooldown)
     {
-        Debug.Log("Cooldown Set To " + FallingWords.instance.CooldownBetweenWordInputs);
-        FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
+        Debug.Log("Cooldown Set To " + newCooldown);
+        FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
     }
     [TargetRpc]
-    public void ReturnCooldownInputSetting()
+    public void ReturnCooldownInputSetting(int newCooldown)
     {
-        FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
+        FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
         AllowInput = true;
     }
     [ClientRpc]
-    public void ReturnSetPlayersPortraits(int indexer,string uniqueId)
+    public void ReturnSetPlayersPortraits(int indexer)
     {
         FallingWords.instance.PlayerListUI[indexer].AccessGameObject.SetActive(true);
-
-        if(LocalUniqueIdentifier == uniqueId)
-        {
-            FallingWords.instance.PlayerListUI[indexer].AccessPortraitImage.color = Color.blue;
-        }
     }    
 
     [Command]
