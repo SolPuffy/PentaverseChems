@@ -120,15 +120,15 @@ public class PlayerToServerCommands : NetworkBehaviour
         Debug.Log("Cooldown Set To " + FallingWords.instance.CooldownBetweenWordInputs);
         FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
     }
-    [ClientRpc]
+    [TargetRpc]
     public void ReturnCooldownSettingForAll()
     {
         FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
+        AllowInput = true;
     }
     [ClientRpc]
     public void ReturnSetPlayersPortraits(int indexer)
     {
-        FallingWords.instance.PlayersList[indexer].playerScript.AllowInput = true;
         FallingWords.instance.PlayerListUI[indexer].AccessGameObject.SetActive(true);
 
         if(LocalUniqueIdentifier == FallingWords.instance.PlayersList[indexer].UniqueIdentifier)

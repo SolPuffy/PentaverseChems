@@ -385,9 +385,10 @@ public class FallingWords : MonoBehaviour
 
     public void StartGame()
     {
-        PlayersList[0].playerScript.ReturnCooldownSettingForAll();
+        
         for(int i=0;i<PlayersList.Count;i++)
         {
+            PlayersList[i].playerScript.ReturnCooldownSettingForAll();
             PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
         }
         GameStarted = true;
