@@ -215,6 +215,7 @@ public class FallingWords : MonoBehaviour
         {
             if (WordsOnScreen[i].Word == word)
             {
+                Debug.Log($"FOUND word '{word}'");
                 missed = false;
                 for(int y=0;y< WordsOnScreen[i].Word.Length;y++)
                 {
@@ -231,6 +232,7 @@ public class FallingWords : MonoBehaviour
             }
             else
             {
+                Debug.Log($"No word '{word}' found");
                 //do nothing, wait for loop to end
             }
         }
@@ -357,6 +359,7 @@ public class FallingWords : MonoBehaviour
     }
     public void SpawnWord(string newWord, int iteration, bool targeted = false)
     {
+        Debug.Log($"NewWord {newWord} at index {iteration}");
         int newIndexer = 0;
         if (targeted)
         {
