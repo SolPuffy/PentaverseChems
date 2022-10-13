@@ -210,9 +210,9 @@ public class FallingWords : MonoBehaviour
         bool missed = true;
 
         //Debug
-        Debug.Log($"Received Word: {word}");
         for (int i=0;i<WordsOnScreen.Count;i++)
         {
+            Debug.Log($"Comparing {WordsOnScreen[i]} with {word}");
             if (WordsOnScreen[i].Word == word)
             {
                 Debug.Log($"FOUND word '{word}'");
@@ -279,6 +279,7 @@ public class FallingWords : MonoBehaviour
 
                 SpawnWord(newWord,i);
                 PlayersList[0].playerScript.SpawnWordForAll(newWord, i, false);
+
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
             else
