@@ -106,7 +106,7 @@ public class FallingWords : MonoBehaviour
         bool missed = true;
 
         //DebugLog
-        Debug.Log($"Received Letter: {letter}");
+        //Debug.Log($"Received Letter: {letter}");
 
         for (int i=0;i<LettersOnScreen.Count;i++)
         {
@@ -193,7 +193,7 @@ public class FallingWords : MonoBehaviour
                 break;
             }
         }
-        Debug.Log($"Score debugging: {PlayersList[0].Score}");
+        //Debug.Log($"Score debugging: {PlayersList[0].Score}");
         for(int i = 0; i <PlayersList.Count;i++)
         {
             if(PlayerUUID == PlayersList[i].UniqueIdentifier)
@@ -207,7 +207,7 @@ public class FallingWords : MonoBehaviour
     public void ReceiveWordFromPlayer(string word,string PlayerUUID)
     {
 
-        Debug.Log($"Word as I got it is {word}");
+        //Debug.Log($"Word as I got it is {word}");
 
         char[] chars = word.ToCharArray();
         bool missed = true;
@@ -215,11 +215,11 @@ public class FallingWords : MonoBehaviour
         //Debug
         for (int i=0;i<WordsOnScreen.Count;i++)
         {
-            Debug.Log($"Wtf is going on with {word}");
-            Debug.Log($"Comparing {WordsOnScreen[i].Word} with {word}");
+            //Debug.Log($"Wtf is going on with {word}");
+            //Debug.Log($"Comparing {WordsOnScreen[i].Word} with {word}");
             if (WordsOnScreen[i].Word == word)
             {
-                Debug.Log($"FOUND word '{word}'");
+                //Debug.Log($"FOUND word '{word}'");
                 missed = false;
                 for(int y=0;y< WordsOnScreen[i].Word.Length;y++)
                 {
@@ -236,7 +236,7 @@ public class FallingWords : MonoBehaviour
             }
             else
             {
-                Debug.Log($"No word '{word}' found");
+                //Debug.Log($"No word '{word}' found");
                 //do nothing, wait for loop to end
             }
         }
@@ -298,7 +298,7 @@ public class FallingWords : MonoBehaviour
     }
     public void CrumbleWordBits(bool isTargeted, int target = -1)
     {
-        Debug.Log(DoWordCrumble);
+        //Debug.Log(DoWordCrumble);
         if(!DoWordCrumble)
         {
             //Debug.Log("Word Crumble is disabled, skipping");
@@ -364,7 +364,7 @@ public class FallingWords : MonoBehaviour
     }
     public void SpawnWord(string newWord, int iteration, bool targeted = false)
     {
-        Debug.Log($"NewWord {newWord} at index {iteration}   DRUGS   .");
+        //Debug.Log($"NewWord {newWord} at index {iteration}   DRUGS   .");
         int newIndexer = 0;
         if (targeted)
         {

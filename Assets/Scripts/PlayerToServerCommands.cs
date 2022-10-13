@@ -26,7 +26,7 @@ public class PlayerToServerCommands : NetworkBehaviour
         }
         else
         {
-            Debug.Log("Nu sunt local bre");
+            //Debug.Log("Nu sunt local bre");
         }
     }    
     public override void OnStopServer()
@@ -152,7 +152,6 @@ public class PlayerToServerCommands : NetworkBehaviour
     [Command]
     public void SendWordToServer(string word)
     {
-        Debug.Log($"Sending {word} to server");
         FallingWords.instance.ReceiveWordFromPlayer(word, LocalUniqueIdentifier);
     }
     [ClientRpc]
