@@ -121,8 +121,9 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
     }
     [TargetRpc]
-    public void ReturnCooldownInputSetting(int newCooldown)
+    public void ReturnCooldownInputSetting(int newCooldown,int indexer)
     {
+        FallingWords.instance.PlayerListUI[indexer].AccessPortraitImage.color = Color.blue;
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
         AllowInput = true;
     }

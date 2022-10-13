@@ -206,8 +206,6 @@ public class FallingWords : MonoBehaviour
     
     public void ReceiveWordFromPlayer(string word,string PlayerUUID)
     {
-        int Hits = 0;
-        int indexHit = 0;
         char[] chars = word.ToCharArray();
         bool missed = true;
 
@@ -215,10 +213,8 @@ public class FallingWords : MonoBehaviour
         Debug.Log($"Received Word: {word}");
         for (int i=0;i<WordsOnScreen.Count;i++)
         {
-            if (WordsOnScreen[i].Word == word && WordsOnScreen[i].canBeColelcted)
+            if (WordsOnScreen[i].Word == word)
             {
-                Hits++;
-                indexHit = i;
                 missed = false;
                 for(int y=0;y< WordsOnScreen[i].Word.Length;y++)
                 {
@@ -227,13 +223,11 @@ public class FallingWords : MonoBehaviour
                         if (chars[y] == LettersOnScreen[k].Letter)
                         {
                             LettersOnScreen.RemoveAt(k);
-                            break;
                         }
                     }
-                    WordsOnScreen[indexHit].canBeColelcted = false;
-                    PlayersList[0].playerScript.ReturnWordInfoToPlayers(indexHit);
+                    PlayersList[0].playerScript.ReturnWordInfoToPlayers(i);
                 }
-                RequestToReplaceWordOnSlot(indexHit);
+                RequestToReplaceWordOnSlot(i);
             }
             else
             {
@@ -247,7 +241,7 @@ public class FallingWords : MonoBehaviour
         }
         else
         {
-            AwardPoints(PlayerUUID, true, Hits, word, true);
+            AwardPoints(PlayerUUID, true, 1, word, true);
         }
     }
     public void BreakAndSaveWordLetters(string wordToBreak, int iteration)
@@ -385,10 +379,9 @@ public class FallingWords : MonoBehaviour
 
     public void StartGame()
     {
-        
         for(int i=0;i<PlayersList.Count;i++)
         {
-            PlayersList[i].playerScript.ReturnCooldownInputSetting(CooldownBetweenWordInputs);
+            PlayersList[i].playerScript.ReturnCooldownInputSetting(CooldownBetweenWordInputs,i);
             PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
         }
         GameStarted = true;

@@ -9,9 +9,4 @@ public class PlayerSlotAccess : MonoBehaviour
     public GameObject AccessGameObject;
     public Image AccessPortraitImage;
     public TextMeshProUGUI AccessScoreText;
-
-    private void Awake()
-    {
-        AccessPortraitImage.color = Color.blue;
-    }
 }

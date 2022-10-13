@@ -15,8 +15,6 @@ public class WordToEntityStructure : MonoBehaviour
     public Vector3 MemorizeSpawnLocation;
     public Vector3 PointToTravelTo;
     public float TravelSpeed = 0.1f;
-    public bool canBeColelcted = true;
-
     private bool keepUpdate = true;
 
     private void Awake()
