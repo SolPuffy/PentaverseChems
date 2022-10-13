@@ -121,17 +121,17 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
     }
     [TargetRpc]
-    public void ReturnCooldownSettingForAll()
+    public void ReturnCooldownInputSetting()
     {
         FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
         AllowInput = true;
     }
     [ClientRpc]
-    public void ReturnSetPlayersPortraits(int indexer)
+    public void ReturnSetPlayersPortraits(int indexer,string uniqueId)
     {
         FallingWords.instance.PlayerListUI[indexer].AccessGameObject.SetActive(true);
 
-        if(LocalUniqueIdentifier == FallingWords.instance.PlayersList[indexer].UniqueIdentifier)
+        if(LocalUniqueIdentifier == uniqueId)
         {
             FallingWords.instance.PlayerListUI[indexer].AccessPortraitImage.color = Color.blue;
         }
