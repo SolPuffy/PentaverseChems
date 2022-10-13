@@ -123,14 +123,18 @@ public class PlayerToServerCommands : NetworkBehaviour
     [ClientRpc]
     public void ReturnCooldownSettingForAll()
     {
-        AllowInput = true;
         FallingWords.instance.InputsManagement.localInputTargetCooldown = FallingWords.instance.CooldownBetweenWordInputs;
     }
-    [TargetRpc]
+    [ClientRpc]
     public void ReturnSetPlayersPortraits(int indexer)
     {
+        FallingWords.instance.PlayersList[indexer].playerScript.AllowInput = true;
         FallingWords.instance.PlayerListUI[indexer].AccessGameObject.SetActive(true);
-        FallingWords.instance.PlayerListUI[indexer].AccessPortraitImage.color = Color.blue;
+
+        if(LocalUniqueIdentifier == FallingWords.instance.PlayersList[indexer].UniqueIdentifier)
+        {
+            FallingWords.instance.PlayerListUI[indexer].AccessPortraitImage.color = Color.blue;
+        }
     }    
 
     [Command]
