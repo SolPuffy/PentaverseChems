@@ -83,12 +83,18 @@ public class FallingWords : MonoBehaviour
         if(textFileAsset != null)
         {
             BaseWordsVolume.Clear();
-            BaseWordsVolume = new List<string>(Regex.Split(textFileAsset.text,"[\\n]"));
+            BaseWordsVolume = new List<string>(Regex.Split(textFileAsset.text,"\\s"));
+        }
+
+        foreach(string a in BaseWordsVolume)
+        {
+            Debug.Log($"Word in list {a}, stricat?");
         }
 
         //Take a random chunk of "AdaptiveWordSearch" entities out of the available words to use for gameplay
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
         AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
+        
     }
 
     public int SendCooldownOnConnect()
