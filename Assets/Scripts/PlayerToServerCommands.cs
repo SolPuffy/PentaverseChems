@@ -193,6 +193,26 @@ public class PlayerToServerCommands : NetworkBehaviour
         }
     }
     [ClientRpc]
+    public void ReturnAttemptedWordGlobally(string attemptedWord)
+    {
+        FallingWords.instance.AttemptsReturnUI.addAdditionalGlobalWord(attemptedWord);
+    }
+    [TargetRpc]
+    public void ReturnAttemptedWordLocally(string attemptedWord)
+    {
+        FallingWords.instance.AttemptsReturnUI.addAdditionalLocalWord(attemptedWord);
+    }
+    [ClientRpc]
+    public void ReturnAttemptedLetterGlobally(char attemptedLetter)
+    {
+        FallingWords.instance.AttemptsReturnUI.addAdditionalGlobalLetter(attemptedLetter);
+    }
+    [TargetRpc]
+    public void ReturnAttemptedLetterLocally(char attemptedLetter)
+    {
+        FallingWords.instance.AttemptsReturnUI.addAdditionalLocalLetter(attemptedLetter);
+    }
+    [ClientRpc]
     public void ReturnHideWordAtTarget(int indexHit)
     {
         for (int z = 0; z < FallingWords.instance.WordsOnScreen[indexHit].Word.Length; z++)

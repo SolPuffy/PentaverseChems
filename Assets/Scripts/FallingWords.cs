@@ -55,6 +55,7 @@ public class FallingWords : MonoBehaviour
     public int CooldownBetweenWordInputs = 300;
     public RectTransform[] WordToGoLocations = new RectTransform[5];
     public PlayerSlotAccess[] PlayerListUI = new PlayerSlotAccess[5];
+    public AttemptsReturn AttemptsReturnUI;
     public bool GameStarted = false;
     private bool apprunning = false;
 
@@ -129,6 +130,14 @@ public class FallingWords : MonoBehaviour
         if(missed)
         {
             MissedLetter(PlayerUUID,letter);
+        }
+        for (int i = 0; i < PlayersList.Count; i++)
+        {
+            if (PlayerUUID == PlayersList[i].UniqueIdentifier)
+            {
+                PlayersList[0].playerScript.ReturnAttemptedLetterGlobally(letter);
+                PlayersList[i].playerScript.ReturnAttemptedLetterLocally(letter);
+            }
         }
     }
     //parcurge toate literele de pe ecran
@@ -207,7 +216,6 @@ public class FallingWords : MonoBehaviour
                 PlayersList[0].playerScript.UpdatePointsBoard(i, PlayersList[i].Score);
             }
         }    
-        
     }
     
     public void ReceiveWordFromPlayer(string word,string PlayerUUID)
@@ -245,6 +253,17 @@ public class FallingWords : MonoBehaviour
                 //do nothing, wait for loop to end
             }
         }
+        //RETURN ATTEMPTED WORDS TO PLAYER BOARDS
+        for (int i = 0; i < PlayersList.Count; i++)
+        {
+            if (PlayerUUID == PlayersList[i].UniqueIdentifier)
+            {
+                PlayersList[0].playerScript.ReturnAttemptedWordGlobally(word);
+                PlayersList[i].playerScript.ReturnAttemptedWordLocally(word);
+            }
+        }
+
+
         //WordsOnScreen.RemoveAt(indexHit);
         if (missed)
         {
