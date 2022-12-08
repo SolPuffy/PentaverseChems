@@ -52,6 +52,13 @@ public class LocalCommands : MonoBehaviour
             CheckLetterOnScreen(keyevent);
         }
     }
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Keypad4))
+        {
+            PlayerToServerCommands.localPlayer.RequestManualBackup();
+        }
+    }
     private void FixedUpdate()
     {
         if(localInputCurrentCooldown > 0)

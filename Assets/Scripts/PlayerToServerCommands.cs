@@ -242,4 +242,11 @@ public class PlayerToServerCommands : NetworkBehaviour
     {
         FallingWords.instance.PlayerListUI[index].AccessScoreText.text = UpdatedScore.ToString();
     }
+
+    //BACKUP
+    [Command]
+    public void RequestManualBackup()
+    {
+        ServerLogging.RequestLogBackup();
+    }
 }

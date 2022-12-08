@@ -5467,6 +5467,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1865651914}
   - component: {fileID: 1865651913}
+  - component: {fileID: 1865651917}
   - component: {fileID: 1865651912}
   - component: {fileID: 1865651915}
   - component: {fileID: 1865651916}
@@ -5776,6 +5777,27 @@ MonoBehaviour:
   globalWord: {fileID: 129748662}
   localLetter: {fileID: 1121773338}
   globalLetter: {fileID: 898743587}
+--- !u!114 &1865651917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1865651911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2b1866357e0aeb4cbf710eed23b3aa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InstanceData:
+    TimeOfGameStart: 
+    TimeOfGameEnd: 
+    PlayerCount: 0
+    AverageActionsPerformed: 0
+    ActionsPerformed: []
+    WordLists:
+      UsedWords: []
+      AvailableWordsThisGame: []
 --- !u!1 &1873343746
 GameObject:
   m_ObjectHideFlags: 0

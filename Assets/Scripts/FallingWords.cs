@@ -95,7 +95,7 @@ public class FallingWords : MonoBehaviour
         //Take a random chunk of "AdaptiveWordSearch" entities out of the available words to use for gameplay
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
         AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
-        
+        ServerLogging.RegisterAvailableWordList(AdaptiveWordsVolume.ToArray());
     }
 
     public int SendCooldownOnConnect()
@@ -135,6 +135,7 @@ public class FallingWords : MonoBehaviour
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
+                ServerLogging.AddActionFromPlayerToList(i, PlayerUUID, "LetterSend", letter.ToString(), !missed);
                 PlayersList[0].playerScript.ReturnAttemptedLetterGlobally(letter);
                 PlayersList[i].playerScript.ReturnAttemptedLetterLocally(letter);
             }
@@ -258,6 +259,7 @@ public class FallingWords : MonoBehaviour
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
+                ServerLogging.AddActionFromPlayerToList(i, PlayerUUID, "WordSend", word, !missed);
                 PlayersList[0].playerScript.ReturnAttemptedWordGlobally(word);
                 PlayersList[i].playerScript.ReturnAttemptedWordLocally(word);
             }
@@ -406,7 +408,7 @@ public class FallingWords : MonoBehaviour
 
         WordsOnScreen[newIndexer].PointToTravelTo = WordToGoLocations[iteration].position;
         WordsOnScreen[newIndexer].TravelSpeed = WordFallingSpeed;
-
+        ServerLogging.AddUsedWordToList(newWord);
     }
 
     public void StartGame()
@@ -418,6 +420,7 @@ public class FallingWords : MonoBehaviour
         }
         GameStarted = true;
         RequestToSpawnWords();
+        ServerLogging.RegisterStartTime();
     }
 
     public void ResetScene()
@@ -431,6 +434,8 @@ public class FallingWords : MonoBehaviour
         }
         WordsOnScreen.Clear();
         LettersOnScreen.Clear();
+        ServerLogging.ResetCurrentLogData();
+        ServerLogging.RegisterAvailableWordList(AdaptiveWordsVolume.ToArray());
 
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
         AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
