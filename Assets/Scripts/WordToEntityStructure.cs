@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 public class WordToEntityStructure : MonoBehaviour
 {
-    public GameObject WordObject;
-    public string Word;
     public TextMeshProUGUI[] Letters = new TextMeshProUGUI[5];
     public Image[] LetterCovers = new Image[5];
 
@@ -31,7 +29,7 @@ public class WordToEntityStructure : MonoBehaviour
         {
             if (Vector3.Distance(transform.position, PointToTravelTo) > 1f)
             {
-                WordObject.transform.position = Vector3.Lerp(transform.position, PointToTravelTo, TravelSpeed * Time.deltaTime);
+                gameObject.transform.position = Vector3.Lerp(transform.position, PointToTravelTo, TravelSpeed * Time.deltaTime);
             }
             else
             {
@@ -43,10 +41,9 @@ public class WordToEntityStructure : MonoBehaviour
     }    
     public void SendWordToLetters(string word)
     {
-        Word = word;
         for (int i = 0; i < 5; i++)
         {
-            Letters[i].text = Word[i].ToString();
+            Letters[i].text = word[i].ToString();
         }
     }
 

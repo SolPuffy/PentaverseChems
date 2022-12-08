@@ -75,9 +75,9 @@ public class PlayerToServerCommands : NetworkBehaviour
     }   
 
     [ClientRpc]
-    public void SpawnWordForAll(string newWord,int intration, bool targeted)
+    public void SpawnWordForAll(string newWord,int intration, bool targeted, bool isLocal)
     {
-        FallingWords.instance.SpawnWord(newWord,intration,targeted);
+        FallingWords.instance.SpawnWord(newWord,intration,targeted, isLocal);
     }
     [Command]
     public void StartGame()
@@ -168,11 +168,11 @@ public class PlayerToServerCommands : NetworkBehaviour
         {
             for (int i = 0; i < FallingWords.instance.WordsOnScreen.Count; i++)
             {
-                for (int y = 0; y < FallingWords.instance.WordsOnScreen[i].Word.Length; y++)
+                for (int y = 0; y < FallingWords.instance.WordsOnScreen[i].HeldWord.Length; y++)
                 {
-                    if (FallingWords.instance.WordsOnScreen[i].Word[y] == keyInfo)
+                    if (FallingWords.instance.WordsOnScreen[i].HeldWord[y] == keyInfo)
                     {
-                        FallingWords.instance.WordsOnScreen[i].LetterCovers[y].gameObject.SetActive(false);
+                        FallingWords.instance.WordsOnScreen[i].Structure.LetterCovers[y].gameObject.SetActive(false);
                     }
                 }
             }
@@ -181,15 +181,15 @@ public class PlayerToServerCommands : NetworkBehaviour
     [ClientRpc]
     public void ReturnWordCoversOnCrumble(int iter,int targetedindex)
     {
-        FallingWords.instance.WordsOnScreen[iter].LetterCovers[targetedindex].gameObject.SetActive(false);
+        FallingWords.instance.WordsOnScreen[iter].Structure.LetterCovers[targetedindex].gameObject.SetActive(false);
     }
     [ClientRpc]
     public void ReturnWordInfoToPlayers(int indexHit)
     {
-        for (int z = 0; z < FallingWords.instance.WordsOnScreen[indexHit].Word.Length; z++)
+        for (int z = 0; z < FallingWords.instance.WordsOnScreen[indexHit].HeldWord.Length; z++)
         {
-            FallingWords.instance.WordsOnScreen[indexHit].LetterCovers[z].gameObject.SetActive(false);
-            FallingWords.instance.WordsOnScreen[indexHit].Letters[z].color = Color.gray;
+            FallingWords.instance.WordsOnScreen[indexHit].Structure.LetterCovers[z].gameObject.SetActive(false);
+            FallingWords.instance.WordsOnScreen[indexHit].Structure.Letters[z].color = Color.gray;
         }
     }
     [ClientRpc]
@@ -215,25 +215,25 @@ public class PlayerToServerCommands : NetworkBehaviour
     [ClientRpc]
     public void ReturnHideWordAtTarget(int indexHit)
     {
-        for (int z = 0; z < FallingWords.instance.WordsOnScreen[indexHit].Word.Length; z++)
+        for (int z = 0; z < FallingWords.instance.WordsOnScreen[indexHit].HeldWord.Length; z++)
         {
-            FallingWords.instance.WordsOnScreen[indexHit].LetterCovers[z].gameObject.SetActive(true);
-            FallingWords.instance.WordsOnScreen[indexHit].Letters[z].color = Color.white;
+            FallingWords.instance.WordsOnScreen[indexHit].Structure.LetterCovers[z].gameObject.SetActive(true);
+            FallingWords.instance.WordsOnScreen[indexHit].Structure.Letters[z].color = Color.white;
         }
     }
     [ClientRpc]
     public void CleanPlayersLists()
     {
-        foreach (WordToEntityStructure word in FallingWords.instance.WordsOnScreen)
+        foreach (WordAdditionalStructure word in FallingWords.instance.WordsOnScreen)
         {
-            Destroy(word.gameObject);
+            Destroy(word.Structure.gameObject);
         }
         FallingWords.instance.WordsOnScreen.Clear();
     }
     [ClientRpc]
     public void CleanPlayersListIndex(int index)
     {
-        GameObject preparedforDestroy = FallingWords.instance.WordsOnScreen[index].gameObject;
+        GameObject preparedforDestroy = FallingWords.instance.WordsOnScreen[index].Structure.gameObject;
         FallingWords.instance.WordsOnScreen.RemoveAt(index);
         Destroy(preparedforDestroy);
     }

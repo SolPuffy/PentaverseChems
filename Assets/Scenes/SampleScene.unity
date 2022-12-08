@@ -5791,7 +5791,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InstanceData:
     TimeOfGameStart: 
-    TimeOfGameEnd: 
+    TimeOfLoggingBackup: 
     PlayerCount: 0
     AverageActionsPerformed: 0
     ActionsPerformed: []
@@ -5982,7 +5982,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1949140133
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6060,7 +6060,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2012466040
 RectTransform:
   m_ObjectHideFlags: 0

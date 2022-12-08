@@ -978,6 +978,7 @@ GameObject:
   - component: {fileID: 1754544509110204228}
   - component: {fileID: 8054805143962795472}
   - component: {fileID: 904179784767867771}
+  - component: {fileID: 2134136202757930823}
   m_Layer: 5
   m_Name: WordEntity
   m_TagString: Untagged
@@ -1079,8 +1080,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1724427f87db68243a9b240667a357d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WordObject: {fileID: 8723219618963266578}
-  Word: testu
   Letters:
   - {fileID: 5113240891506423905}
   - {fileID: 2453445237754004692}
@@ -1096,7 +1095,20 @@ MonoBehaviour:
   MemorizeSpawnLocation: {x: 0, y: 0, z: 0}
   PointToTravelTo: {x: 0, y: 0, z: 0}
   TravelSpeed: 1
-  canBeColelcted: 1
+--- !u!114 &2134136202757930823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8723219618963266578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ebb9dc24426e81409c19bf97057e5af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Structure: {fileID: 904179784767867771}
+  HeldWord: 
 --- !u!1 &9214713186507382260
 GameObject:
   m_ObjectHideFlags: 0

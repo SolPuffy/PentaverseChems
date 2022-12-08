@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -39,7 +38,7 @@ public class FallingWords : MonoBehaviour
     public float WordFallingSpeed = 1.33f;
     public bool DoWordCrumble = true;
 
-    [HideInInspector] public List<WordToEntityStructure> WordsOnScreen = new List<WordToEntityStructure>();
+    [HideInInspector] public List<WordAdditionalStructure> WordsOnScreen = new List<WordAdditionalStructure>();
     [HideInInspector] public List<LetterToWordStructure> LettersOnScreen = new List<LetterToWordStructure>();
     [Header("Other Script Components")]
     public LocalCommands InputsManagement;
@@ -136,7 +135,7 @@ public class FallingWords : MonoBehaviour
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
                 ServerLogging.AddActionFromPlayerToList(i, PlayerUUID, "LetterSend", letter.ToString(), !missed);
-                PlayersList[0].playerScript.ReturnAttemptedLetterGlobally(letter);
+                //PlayersList[0].playerScript.ReturnAttemptedLetterGlobally(letter);
                 PlayersList[i].playerScript.ReturnAttemptedLetterLocally(letter);
             }
         }
@@ -231,11 +230,11 @@ public class FallingWords : MonoBehaviour
         {
             //Debug.Log($"Wtf is going on with {word}");
             //Debug.Log($"Comparing {WordsOnScreen[i].Word} with {word}");
-            if (WordsOnScreen[i].Word == word)
+            if (WordsOnScreen[i].HeldWord == word)
             {
                 //Debug.Log($"FOUND word '{word}'");
                 missed = false;
-                for(int y=0;y< WordsOnScreen[i].Word.Length;y++)
+                for(int y=0;y< WordsOnScreen[i].HeldWord.Length;y++)
                 {
                     for(int k=0;k<LettersOnScreen.Count;k++)
                     {
@@ -260,7 +259,7 @@ public class FallingWords : MonoBehaviour
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
                 ServerLogging.AddActionFromPlayerToList(i, PlayerUUID, "WordSend", word, !missed);
-                PlayersList[0].playerScript.ReturnAttemptedWordGlobally(word);
+                //PlayersList[0].playerScript.ReturnAttemptedWordGlobally(word);
                 PlayersList[i].playerScript.ReturnAttemptedWordLocally(word);
             }
         }
@@ -290,9 +289,9 @@ public class FallingWords : MonoBehaviour
     public async void RequestToSpawnWords()
     {
         //Destroy previous words & set new ones
-        foreach (WordToEntityStructure word in WordsOnScreen)
+        foreach (WordAdditionalStructure word in WordsOnScreen)
         {
-            Destroy(word.gameObject);
+            Destroy(word.Structure.gameObject);
         }
         WordsOnScreen.Clear();
         PlayersList[0].playerScript.CleanPlayersLists();
@@ -308,7 +307,7 @@ public class FallingWords : MonoBehaviour
                 BreakAndSaveWordLetters(newWord, i);
 
                 SpawnWord(newWord,i);
-                PlayersList[0].playerScript.SpawnWordForAll(newWord, i, false);
+                PlayersList[0].playerScript.SpawnWordForAll(newWord, i,false,true);
 
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
@@ -336,13 +335,13 @@ public class FallingWords : MonoBehaviour
             int targetedindex = UnityEngine.Random.Range(0, 49) / 10;
             for (int y = 0; y < LettersOnScreen.Count; y++)
             {
-                if (LettersOnScreen[y].IndexOfWord == target && LettersOnScreen[y].Letter == WordsOnScreen[target].Word[targetedindex])
+                if (LettersOnScreen[y].IndexOfWord == target && LettersOnScreen[y].Letter == WordsOnScreen[target].HeldWord[targetedindex])
                 {
                     //Debug.Log($"Crumble letter {LettersOnScreen[y]} from word {WordsOnScreen[target].Word[targetedindex]}");
                     LettersOnScreen.RemoveAt(y);
                 }
             }
-            WordsOnScreen[target].LetterCovers[targetedindex].gameObject.SetActive(false);
+            WordsOnScreen[target].Structure.LetterCovers[targetedindex].gameObject.SetActive(false);
             PlayersList[0].playerScript.ReturnWordCoversOnCrumble(target, targetedindex);
         }
         //Targets all the words for 'crumble' as part of the " RequestToSpawnWords" command
@@ -354,7 +353,7 @@ public class FallingWords : MonoBehaviour
                 int targetedindex = UnityEngine.Random.Range(0, 4);
                 for (int y = 0; y < LettersOnScreen.Count; y++)
                 {
-                    if (LettersOnScreen[y].IndexOfWord == i && LettersOnScreen[y].Letter == WordsOnScreen[i].Word[targetedindex])
+                    if (LettersOnScreen[y].IndexOfWord == i && LettersOnScreen[y].Letter == WordsOnScreen[i].HeldWord[targetedindex])
                     {
                         LettersOnScreen.RemoveAt(y);
                     }
@@ -368,7 +367,7 @@ public class FallingWords : MonoBehaviour
     public void RequestToReplaceWordOnSlot(int slotIndex)
     {
         //Destroy previous word at target index & replace at index
-        GameObject preparedforDestroy = WordsOnScreen[slotIndex].gameObject;
+        GameObject preparedforDestroy = WordsOnScreen[slotIndex].Structure.gameObject;
         WordsOnScreen.RemoveAt(slotIndex);
         Destroy(preparedforDestroy);
         PlayersList[0].playerScript.CleanPlayersListIndex(slotIndex);
@@ -380,7 +379,7 @@ public class FallingWords : MonoBehaviour
         BreakAndSaveWordLetters(newWord, slotIndex);
 
         SpawnWord(newWord, slotIndex,true);
-        PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex,true);
+        PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex,true,true);
 
         PlayersList[0].playerScript.ReturnHideWordAtTarget(slotIndex);
 
@@ -388,26 +387,30 @@ public class FallingWords : MonoBehaviour
 
         //Debug.Log($"Word Replaced at index {slotIndex}, remaining in playable list = {AdaptiveWordsVolume.Count}");
     }
-    public void SpawnWord(string newWord, int iteration, bool targeted = false)
+    public void SpawnWord(string newWord, int iteration, bool targeted = false, bool localEntity = false)
     {
+
         Debug.Log($"NewWord '{newWord}' spawned at index '{iteration}'.");
         int newIndexer = 0;
         if (targeted)
         {
-            WordsOnScreen.Insert(iteration,Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordTransformParent).GetComponent<WordToEntityStructure>());
+            WordsOnScreen.Insert(iteration,Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordTransformParent).GetComponent<WordAdditionalStructure>());
             newIndexer = iteration;
         }    
         else
         {
-            WordsOnScreen.Add(Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordTransformParent).GetComponent<WordToEntityStructure>());
-
+            WordsOnScreen.Add(Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordTransformParent).GetComponent<WordAdditionalStructure>());
             newIndexer = WordsOnScreen.Count - 1;
         }
 
-        WordsOnScreen[newIndexer].SendWordToLetters(newWord);
+        if(!localEntity)
+        {
+            WordsOnScreen[newIndexer].HeldWord = newWord;
+        }
 
-        WordsOnScreen[newIndexer].PointToTravelTo = WordToGoLocations[iteration].position;
-        WordsOnScreen[newIndexer].TravelSpeed = WordFallingSpeed;
+        WordsOnScreen[newIndexer].Structure.SendWordToLetters(newWord);
+        WordsOnScreen[newIndexer].Structure.PointToTravelTo = WordToGoLocations[iteration].position;
+        WordsOnScreen[newIndexer].Structure.TravelSpeed = WordFallingSpeed;
         ServerLogging.AddUsedWordToList(newWord);
     }
 
@@ -428,9 +431,9 @@ public class FallingWords : MonoBehaviour
         GameStarted = false;
         PlayersList.Clear();
         AdaptiveWordsVolume.Clear();
-        foreach(WordToEntityStructure word in WordsOnScreen)
+        foreach(WordAdditionalStructure word in WordsOnScreen)
         {
-            Destroy(word.gameObject);
+            Destroy(word.Structure.gameObject);
         }
         WordsOnScreen.Clear();
         LettersOnScreen.Clear();
