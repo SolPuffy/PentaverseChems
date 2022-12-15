@@ -412,12 +412,12 @@ public class FallingWords : MonoBehaviour
         int newIndexer = 0;
         if (targeted)
         {
-            WordsOnScreen.Insert(iteration,Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordTransformParent).GetComponent<WordAdditionalStructure>());
+            WordsOnScreen.Insert(iteration,Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordToGoLocations[iteration]).GetComponent<WordAdditionalStructure>());
             newIndexer = iteration;
         }    
         else
         {
-            WordsOnScreen.Add(Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordTransformParent).GetComponent<WordAdditionalStructure>());
+            WordsOnScreen.Add(Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordToGoLocations[iteration]).GetComponent<WordAdditionalStructure>());
             newIndexer = WordsOnScreen.Count - 1;
         }
 
