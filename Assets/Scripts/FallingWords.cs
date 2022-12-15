@@ -53,7 +53,8 @@ public class FallingWords : MonoBehaviour
     [Header("Other")]
     public int CooldownBetweenWordInputs = 300;
     public RectTransform[] WordToGoLocations = new RectTransform[5];
-    public PlayerSlotAccess[] PlayerListUI = new PlayerSlotAccess[5];
+    public PlayerSlotAccess[] PlayerUI = new PlayerSlotAccess[5];
+    public Sprite[] PlayerPortraits = new Sprite[5];
     public AttemptsReturn AttemptsReturnUI;
     public bool GameStarted = false;
     private bool apprunning = false;
@@ -416,11 +417,23 @@ public class FallingWords : MonoBehaviour
 
     public void StartGame()
     {
+        List<int> AvailablePortraits = new List<int>();
+        int[] AvailablePortraitsInitialValues = { 0, 1, 2, 3, 4 };
+        AvailablePortraits.AddRange(AvailablePortraitsInitialValues);
+        int randPortraitrResult = 0;
+
         for(int i=0;i<PlayersList.Count;i++)
         {
-            PlayersList[i].playerScript.ReturnCooldownInputSetting(CooldownBetweenWordInputs,i);
+            randPortraitrResult = UnityEngine.Random.Range(0, AvailablePortraits.Count);
+
+            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputs,i, randPortraitrResult);
+
+            AvailablePortraits.RemoveAt(randPortraitrResult);
+
             PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
+
         }
+
         GameStarted = true;
         RequestToSpawnWords();
         ServerLogging.RegisterStartTime();

@@ -41,6 +41,7 @@ public class ServerLogging : MonoBehaviour
     {
         InstanceLogging = this;
         CheckFolderDataPath();
+        
     }
     #region BackupFunctions
     private async Task PerformBackup()
@@ -60,7 +61,7 @@ public class ServerLogging : MonoBehaviour
 
         Debug.Log($"Backup location: {PathToFile}, Backup date: {InstanceData.TimeOfLoggingBackup}");
     }
-    public async Task ReadBackup(string inputToFile)
+    private async Task ReadBackup(string inputToFile)
     {
         if (inputToFile.Length == 9)
         {

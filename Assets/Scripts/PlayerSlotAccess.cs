@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class PlayerSlotAccess : MonoBehaviour
 {
-    public GameObject AccessGameObject;
-    public Image AccessPortraitImage;
+    public Image AccessSlotIndicatorImage;
+    public Image PlayerPortraitImage; 
     public TextMeshProUGUI AccessScoreText;
 }

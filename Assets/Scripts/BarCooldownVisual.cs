@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class BarCooldownVisual : MonoBehaviour
 {
-    public Image AccessLeftBar;
-    public Image AccessRightBar;
-    public GameObject AccessBadge;
+    public Image left;
+    public Image middle;
+    public Image right;
 }

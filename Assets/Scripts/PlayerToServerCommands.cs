@@ -113,7 +113,7 @@ public class PlayerToServerCommands : NetworkBehaviour
         nStruct.playerScript = this;
         LocalUniqueIdentifier = nStruct.UniqueIdentifier = identifier;
         nStruct.Score = 0;
-        nStruct.playerUI = FallingWords.instance.PlayerListUI[FallingWords.instance.PlayersList.Count];
+        nStruct.playerUI = FallingWords.instance.PlayerUI[FallingWords.instance.PlayersList.Count];
         FallingWords.instance.PlayersList.Add(nStruct);
     }
     [Command]
@@ -128,16 +128,17 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
     }
     [TargetRpc]
-    public void ReturnCooldownInputSetting(int newCooldown,int indexer)
+    public void ReturnServerPlayerSetting(int newCooldown,int indexer, int indexOfPortraitImage)
     {
-        FallingWords.instance.PlayerListUI[indexer].AccessPortraitImage.color = Color.blue;
+        FallingWords.instance.PlayerUI[indexer].AccessSlotIndicatorImage.color = Color.blue;
+        FallingWords.instance.PlayerUI[indexer].PlayerPortraitImage.sprite = FallingWords.instance.PlayerPortraits[indexOfPortraitImage];
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
         AllowInput = true;
     }
     [ClientRpc]
     public void ReturnSetPlayersPortraits(int indexer)
     {
-        FallingWords.instance.PlayerListUI[indexer].AccessGameObject.SetActive(true);
+        FallingWords.instance.PlayerUI[indexer].gameObject.SetActive(true);
     }    
 
     [Command]
@@ -240,7 +241,7 @@ public class PlayerToServerCommands : NetworkBehaviour
     [ClientRpc]
     public void UpdatePointsBoard(int index,int UpdatedScore)
     {
-        FallingWords.instance.PlayerListUI[index].AccessScoreText.text = UpdatedScore.ToString();
+        FallingWords.instance.PlayerUI[index].AccessScoreText.text = UpdatedScore.ToString();
     }
 
     //BACKUP

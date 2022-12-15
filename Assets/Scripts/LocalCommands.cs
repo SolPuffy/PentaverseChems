@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LocalCommands : MonoBehaviour
 {
@@ -70,6 +71,29 @@ public class LocalCommands : MonoBehaviour
 
     public void UpdateCooldownBar()
     {
+        if(localInputCurrentCooldown > 200)
+        {
+            cooldownBar.left.gameObject.SetActive(false);
+            cooldownBar.middle.gameObject.SetActive(false);
+            cooldownBar.right.gameObject.SetActive(false);
+            return;
+        }
+        if (!(localInputCurrentCooldown > 200))
+        {
+            cooldownBar.left.gameObject.SetActive(true);
+        }
+        if (!(localInputCurrentCooldown > 100))
+        {
+            cooldownBar.middle.gameObject.SetActive(true);
+        }
+        if (!(localInputCurrentCooldown > 0))
+        {
+            cooldownBar.right.gameObject.SetActive(true);
+        }
+    }    
+
+    /*public void UpdateCooldownBar()
+    {
         if(localInputCurrentCooldown > 0)
         {
             cooldownBar.AccessBadge.SetActive(true);
@@ -102,7 +126,7 @@ public class LocalCommands : MonoBehaviour
                     break;
                 }
         }
-    }
+    }*/
     //LOCAL
     public void AccessInputField()
     {
