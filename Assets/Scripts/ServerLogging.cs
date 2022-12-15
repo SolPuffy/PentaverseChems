@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 [System.Serializable]
 public class ServerData
@@ -45,10 +46,10 @@ public class ServerLogging : MonoBehaviour
     }
     #region BackupFunctions
     private async Task PerformBackup()
-    {
+    {        
         GetFileDataPath();
-
-        if(InstanceData.TimeOfGameStart == "")
+        UnityEngine.Debug.Log("performing backup...");
+        if (InstanceData.TimeOfGameStart == "")
         {
             InstanceData.TimeOfGameStart = "Game was never started";
         }
@@ -59,7 +60,7 @@ public class ServerLogging : MonoBehaviour
         string JsonOutput = JsonUtility.ToJson(InstanceData, true);
         await System.IO.File.WriteAllTextAsync(PathToFile, JsonOutput);
 
-        Debug.Log($"Backup location: {PathToFile}, Backup date: {InstanceData.TimeOfLoggingBackup}");
+        UnityEngine.Debug.Log($"Backup location: {PathToFile}, Backup date: {InstanceData.TimeOfLoggingBackup}");
     }
     private async Task ReadBackup(string inputToFile)
     {
@@ -73,12 +74,12 @@ public class ServerLogging : MonoBehaviour
             }
             else
             {
-                Debug.LogError("ReadBackup >> File does not exist");
+                UnityEngine.Debug.LogError("ReadBackup >> File does not exist");
             }
         }
         else
         {
-            Debug.LogError("ReadBackup >> Invalid Input");
+            UnityEngine.Debug.LogError("ReadBackup >> Invalid Input");
         }
     }
     #endregion
@@ -111,7 +112,7 @@ public class ServerLogging : MonoBehaviour
         ServerLogging.InstanceLogging.InstanceData.TimeOfGameStart = DateTime.Now.ToString("G");
     }    
     public async static void RequestLogBackup()
-    {
+    {        
         await ServerLogging.InstanceLogging.PerformBackup();
     }    
     public async static Task<ServerData> RequestDataFromServer(string fileIndex)
@@ -126,7 +127,7 @@ public class ServerLogging : MonoBehaviour
         string path = getFolderDataPath();
         if (Directory.Exists(path))
         {
-            Debug.Log("FolderFound");
+            UnityEngine.Debug.Log("FolderFound");
             //doNothing
         }
         else
@@ -170,16 +171,16 @@ public class ServerLogging : MonoBehaviour
     private string getFolderDataPath()
     {
 #if UNITY_EDITOR
-        Debug.Log(Application.dataPath + "/SaveFiles");
+        UnityEngine.Debug.Log(Application.dataPath + "/SaveFiles");
         return Application.dataPath + "/SaveFiles";
 #elif UNITY_ANDROID
-        Debug.Log(Application.persistentDataPath + "/SaveFiles");
+        UnityEngine.Debug.Log(Application.persistentDataPath + "/SaveFiles");
         return Application.persistentDataPath + "/SaveFiles";
 #elif UNITY_IPHONE
-        Debug.Log(Application.persistentDataPath + "/SaveFiles");
+        UnityEngine.Debug.Log(Application.persistentDataPath + "/SaveFiles");
         return Application.persistentDataPath + "/SaveFiles";
 #else
-        Debug.Log(Application.dataPath + "/SaveFiles");
+        UnityEngine.Debug.Log(Application.dataPath + "/SaveFiles");
         return Application.dataPath + "/SaveFiles";
 #endif
     }

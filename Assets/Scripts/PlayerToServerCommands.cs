@@ -83,6 +83,13 @@ public class PlayerToServerCommands : NetworkBehaviour
     public void StartGame()
     {
         FallingWords.instance.StartGame();
+        KillStart();
+    }
+
+    [ClientRpc]
+    public void KillStart()
+    {
+        LocalCommands.KillStartt();
     }
     [Command]
     public void AddNewPlayer()
@@ -247,7 +254,7 @@ public class PlayerToServerCommands : NetworkBehaviour
     //BACKUP
     [Command]
     public void RequestManualBackup()
-    {
+    {        
         ServerLogging.RequestLogBackup();
     }
 }

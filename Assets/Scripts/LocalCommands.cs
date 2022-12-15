@@ -14,6 +14,15 @@ public class LocalCommands : MonoBehaviour
     public int localInputTargetCooldown = 0;
     public TMP_InputField WordInputField;
     public BarCooldownVisual cooldownBar;
+    [SerializeField] Transform _gameStart;
+    public static Transform GameStart;
+
+
+    private void Awake()
+    {
+        GameStart = _gameStart;
+        GameStart.gameObject.SetActive(true);
+    }
 
     //LOCAL
     //Detect Keyboard Inputs & return their keycodes (mare grija cu asta ca dupa zic astia ca bagam key loggers xd)
@@ -57,8 +66,9 @@ public class LocalCommands : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Keypad4))
         {
+            Debug.Log("Sending log command");
             PlayerToServerCommands.localPlayer.RequestManualBackup();
-        }
+        }          
     }
     private void FixedUpdate()
     {
@@ -172,5 +182,10 @@ public class LocalCommands : MonoBehaviour
     public void StartGame()
     {
         PlayerToServerCommands.localPlayer.StartGame();
+    }
+
+    public static void KillStartt()
+    {
+        GameStart.gameObject.SetActive(false);
     }
 }

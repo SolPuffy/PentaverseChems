@@ -87,10 +87,12 @@ public class FallingWords : MonoBehaviour
             BaseWordsVolume = new List<string>(Regex.Split(textFileAsset.text,"\\s"));
         }
 
+        /*
         foreach(string a in BaseWordsVolume)
         {
             Debug.Log($"Word in list {a}, stricat?");
         }
+        */
 
         //Take a random chunk of "AdaptiveWordSearch" entities out of the available words to use for gameplay
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
@@ -416,19 +418,11 @@ public class FallingWords : MonoBehaviour
     }
 
     public void StartGame()
-    {
-        List<int> AvailablePortraits = new List<int>();
-        int[] AvailablePortraitsInitialValues = { 0, 1, 2, 3, 4 };
-        AvailablePortraits.AddRange(AvailablePortraitsInitialValues);
-        int randPortraitrResult = 0;
+    {             
 
         for(int i=0;i<PlayersList.Count;i++)
         {
-            randPortraitrResult = UnityEngine.Random.Range(0, AvailablePortraits.Count);
-
-            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputs,i, randPortraitrResult);
-
-            AvailablePortraits.RemoveAt(randPortraitrResult);
+            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputs,i, i);            
 
             PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
 
