@@ -148,6 +148,7 @@ public class FallingWords : MonoBehaviour
     //dezactiveaza index-ul literei lovite si scoate cover-ul
     public void StruckLetter(char LetterStruck,string PlayerUUID)
     {
+
         int Hits = 0;
         for (int z = 0; z < 2; z++)
         {
@@ -160,7 +161,21 @@ public class FallingWords : MonoBehaviour
                 }
             }
         }
-        PlayersList[0].playerScript.ReturnKeyInfoToPlayers(LetterStruck);
+
+        //
+        for (int i = 0; i < FallingWords.instance.WordsOnScreen.Count; i++)
+        {
+            for (int y = 0; y < FallingWords.instance.WordsOnScreen[i].HeldWord.Length; y++)
+            {
+                if (FallingWords.instance.WordsOnScreen[i].HeldWord[y] == LetterStruck)
+                {
+                    PlayersList[0].playerScript.ReturnKeyInfoToPlayers(i,y);
+                }
+            }
+        }
+        //
+
+        
 
         AwardPoints(PlayerUUID, true, Hits, LetterStruck.ToString());
     }
@@ -393,7 +408,7 @@ public class FallingWords : MonoBehaviour
     public void SpawnWord(string newWord, int iteration, bool targeted = false, bool localEntity = false)
     {
 
-        Debug.Log($"NewWord '{newWord}' spawned at index '{iteration}'.");
+        //Debug.Log($"NewWord '{newWord}' spawned at index '{iteration}'.");
         int newIndexer = 0;
         if (targeted)
         {
@@ -422,7 +437,7 @@ public class FallingWords : MonoBehaviour
 
         for(int i=0;i<PlayersList.Count;i++)
         {
-            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputs,i, i);            
+            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputs,i);            
 
             PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
 

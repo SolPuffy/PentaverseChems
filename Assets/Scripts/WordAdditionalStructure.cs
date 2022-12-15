@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class WordAdditionalStructure : MonoBehaviour
 {
-    public WordToEntityStructure Structure = new WordToEntityStructure();
+    public WordToEntityStructure Structure;
     public string HeldWord;
 }

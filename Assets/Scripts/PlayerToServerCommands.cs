@@ -135,10 +135,9 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
     }
     [TargetRpc]
-    public void ReturnServerPlayerSetting(int newCooldown,int indexer, int indexOfPortraitImage)
+    public void ReturnServerPlayerSetting(int newCooldown,int indexer)
     {
         FallingWords.instance.PlayerUI[indexer].AccessSlotIndicatorImage.color = Color.blue;
-        FallingWords.instance.PlayerUI[indexer].PlayerPortraitImage.sprite = FallingWords.instance.PlayerPortraits[indexOfPortraitImage];
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
         AllowInput = true;
     }
@@ -146,7 +145,8 @@ public class PlayerToServerCommands : NetworkBehaviour
     public void ReturnSetPlayersPortraits(int indexer)
     {
         FallingWords.instance.PlayerUI[indexer].gameObject.SetActive(true);
-    }    
+        FallingWords.instance.PlayerUI[indexer].PlayerPortraitImage.sprite = FallingWords.instance.PlayerPortraits[indexer];
+    }
 
     [Command]
     public void removePlayer()
@@ -170,21 +170,9 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.ReceiveWordFromPlayer(word, LocalUniqueIdentifier);
     }
     [ClientRpc]
-    public void ReturnKeyInfoToPlayers(char keyInfo)
+    public void ReturnKeyInfoToPlayers(int WordIndex,int LetterOnWordIndex)
     {
-        for (int z = 0; z < 2; z++)
-        {
-            for (int i = 0; i < FallingWords.instance.WordsOnScreen.Count; i++)
-            {
-                for (int y = 0; y < FallingWords.instance.WordsOnScreen[i].HeldWord.Length; y++)
-                {
-                    if (FallingWords.instance.WordsOnScreen[i].HeldWord[y] == keyInfo)
-                    {
-                        FallingWords.instance.WordsOnScreen[i].Structure.LetterCovers[y].gameObject.SetActive(false);
-                    }
-                }
-            }
-        }
+        FallingWords.instance.WordsOnScreen[WordIndex].Structure.LetterCovers[LetterOnWordIndex].gameObject.SetActive(false);
     }
     [ClientRpc]
     public void ReturnWordCoversOnCrumble(int iter,int targetedindex)

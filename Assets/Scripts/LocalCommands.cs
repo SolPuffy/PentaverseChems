@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class LocalCommands : MonoBehaviour
 {
     private bool InputFieldState = false;
     private int localInputCurrentCooldown = 0;
-    public int localInputTargetCooldown = 0;
+    public float localInputTargetCooldown = 0;
     public TMP_InputField WordInputField;
     public BarCooldownVisual cooldownBar;
     [SerializeField] Transform _gameStart;
@@ -81,18 +82,18 @@ public class LocalCommands : MonoBehaviour
 
     public void UpdateCooldownBar()
     {
-        if(localInputCurrentCooldown > 200)
+        if(localInputCurrentCooldown > Mathf.CeilToInt(localInputTargetCooldown * 0.66f))
         {
             cooldownBar.left.gameObject.SetActive(false);
             cooldownBar.middle.gameObject.SetActive(false);
             cooldownBar.right.gameObject.SetActive(false);
             return;
         }
-        if (!(localInputCurrentCooldown > 200))
+        if (!(localInputCurrentCooldown > Mathf.CeilToInt(localInputTargetCooldown * 0.66f)))
         {
             cooldownBar.left.gameObject.SetActive(true);
         }
-        if (!(localInputCurrentCooldown > 100))
+        if (!(localInputCurrentCooldown > Mathf.CeilToInt(localInputTargetCooldown * 0.33f)))
         {
             cooldownBar.middle.gameObject.SetActive(true);
         }
@@ -169,7 +170,7 @@ public class LocalCommands : MonoBehaviour
     //LOCAL
     public void CheckLetterOnScreen(Event keyevent)
     {
-        localInputCurrentCooldown = localInputTargetCooldown;
+        localInputCurrentCooldown = (int)localInputTargetCooldown;
         PlayerToServerCommands.localPlayer.SendKeyToServer(keyevent.keyCode.ToString().ToLower()[0]);
     }
     //LOCAL
