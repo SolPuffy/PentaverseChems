@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 2717086128253178219}
   - component: {fileID: 191058421808252519}
   m_Layer: 5
-  m_Name: LetterCover
+  m_Name: LetterCover2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -292,7 +292,7 @@ GameObject:
   - component: {fileID: 794386876901126193}
   - component: {fileID: 3620907174280857403}
   m_Layer: 5
-  m_Name: LetterCover
+  m_Name: LetterCover0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -504,7 +504,7 @@ GameObject:
   - component: {fileID: 95551968478959490}
   - component: {fileID: 7725875356781758185}
   m_Layer: 5
-  m_Name: LetterCover
+  m_Name: LetterCover4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -580,7 +580,7 @@ GameObject:
   - component: {fileID: 2527932744886680407}
   - component: {fileID: 1725340538790901648}
   m_Layer: 5
-  m_Name: LetterCover
+  m_Name: LetterCover3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -928,7 +928,7 @@ GameObject:
   - component: {fileID: 5791478611718630131}
   - component: {fileID: 7111722407121955681}
   m_Layer: 5
-  m_Name: LetterCover
+  m_Name: LetterCover1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1114,11 +1114,11 @@ MonoBehaviour:
   - {fileID: 6972811846315971369}
   - {fileID: 8464197257745564542}
   LetterCovers:
-  - {fileID: 3620907174280857403}
-  - {fileID: 7111722407121955681}
-  - {fileID: 191058421808252519}
-  - {fileID: 1725340538790901648}
-  - {fileID: 7725875356781758185}
+  - {fileID: 2611438738574968761}
+  - {fileID: 8267569984142529487}
+  - {fileID: 1284486506584486567}
+  - {fileID: 4795099746731521456}
+  - {fileID: 4099522446711940780}
   MemorizeSpawnLocation: {x: 0, y: 0, z: 0}
   PointToTravelTo: {x: 0, y: 0, z: 0}
   TravelSpeed: 1
@@ -1135,6 +1135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Structure: {fileID: 904179784767867771}
+  HeldLetters: 
   HeldWord: 
 --- !u!1 &9214713186507382260
 GameObject:

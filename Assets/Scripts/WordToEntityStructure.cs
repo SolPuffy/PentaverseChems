@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class WordToEntityStructure : MonoBehaviour
 {
     public TextMeshProUGUI[] Letters = new TextMeshProUGUI[5];
-    public Image[] LetterCovers = new Image[5];
+    public GameObject[] LetterCovers = new GameObject[5];
 
     public Vector3 MemorizeSpawnLocation;
     public Vector3 PointToTravelTo;

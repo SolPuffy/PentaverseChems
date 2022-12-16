@@ -172,7 +172,8 @@ public class PlayerToServerCommands : NetworkBehaviour
     [ClientRpc]
     public void ReturnKeyInfoToPlayers(int WordIndex,int LetterOnWordIndex)
     {
-        FallingWords.instance.WordsOnScreen[WordIndex].Structure.LetterCovers[LetterOnWordIndex].gameObject.SetActive(false);
+        FallingWords.instance.WordsOnScreen[WordIndex].Structure.LetterCovers[LetterOnWordIndex].SetActive(false);
+        Debug.Log($"Uncovering {WordIndex},{LetterOnWordIndex}");
     }
     [ClientRpc]
     public void ReturnWordCoversOnCrumble(int iter,int targetedindex)

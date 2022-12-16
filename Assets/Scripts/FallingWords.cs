@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -39,7 +40,7 @@ public class FallingWords : MonoBehaviour
     public bool DoWordCrumble = true;
 
     [HideInInspector] public List<WordAdditionalStructure> WordsOnScreen = new List<WordAdditionalStructure>();
-    [HideInInspector] public List<LetterToWordStructure> LettersOnScreen = new List<LetterToWordStructure>();
+    //[HideInInspector] public List<LetterToWordStructure> LettersOnScreen = new List<LetterToWordStructure>();
     [Header("Other Script Components")]
     public LocalCommands InputsManagement;
     public ScoringComponent ScoreManagement;
@@ -113,26 +114,52 @@ public class FallingWords : MonoBehaviour
     public void ReceiveLetterFromPlayer(char letter,string PlayerUUID)
     {
         bool missed = true;
+        int Hits = 0;
 
         //DebugLog
         Debug.Log($"Received Letter: {letter} from {PlayerUUID}");
 
-        for (int i=0;i<LettersOnScreen.Count;i++)
+        for (int i=0;i<WordsOnScreen.Count;i++)
         {
-            if (letter == LettersOnScreen[i].Letter)
+            for(int y = 0; y < WordsOnScreen[i].HeldLetters.Count;y++)
             {
-                missed = false;
-                StruckLetter(LettersOnScreen[i].Letter, PlayerUUID);
-            }
-            else
+                if (letter == WordsOnScreen[i].HeldLetters[y])
+                {
+                    missed = false;
+                    Hits++;
+                    PlayersList[0].playerScript.ReturnKeyInfoToPlayers(i, y);
+                    WordsOnScreen[i].HeldLetters.RemoveAt(y);
+                    i = 0;
+                    //StruckLetter(LettersOnScreen[i].Letter, PlayerUUID);
+                }
+                else
+                {
+                    //do nothing and wait for loop to finish
+                }
+            }    
+        }
+
+        string aro = "";
+        int countlet = 0;
+        foreach(WordAdditionalStructure a in WordsOnScreen)
+        {
+            foreach(char b in a.HeldLetters)
             {
-                //do nothing and wait for loop to finish
+                aro += $" {b}";
+                countlet++;
             }
         }
+        Debug.Log($"Letters Available {countlet}");
+        Debug.Log($"Letters Array: {aro}");
+
         if(missed)
         {
             MissedLetter(PlayerUUID,letter);
         }
+        else
+        {
+            StruckLetter(PlayerUUID, letter, Hits);
+        }    
         for (int i = 0; i < PlayersList.Count; i++)
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
@@ -146,37 +173,8 @@ public class FallingWords : MonoBehaviour
     //parcurge toate literele de pe ecran
     //parcurge toate cuvintele de pe ecran si verifica daca litera apasata se regaseste in cuvinte
     //dezactiveaza index-ul literei lovite si scoate cover-ul
-    public void StruckLetter(char LetterStruck,string PlayerUUID)
+    public void StruckLetter(string PlayerUUID,char LetterStruck,int Hits)
     {
-
-        int Hits = 0;
-        for (int z = 0; z < 2; z++)
-        {
-            for (int i = 0; i < LettersOnScreen.Count; i++)
-            {
-                if (LettersOnScreen[i].Letter == LetterStruck)
-                {
-                    Hits++;
-                    LettersOnScreen.RemoveAt(i);
-                }
-            }
-        }
-
-        //
-        for (int i = 0; i < FallingWords.instance.WordsOnScreen.Count; i++)
-        {
-            for (int y = 0; y < FallingWords.instance.WordsOnScreen[i].HeldWord.Length; y++)
-            {
-                if (FallingWords.instance.WordsOnScreen[i].HeldWord[y] == LetterStruck)
-                {
-                    PlayersList[0].playerScript.ReturnKeyInfoToPlayers(i,y);
-                }
-            }
-        }
-        //
-
-        
-
         AwardPoints(PlayerUUID, true, Hits, LetterStruck.ToString());
     }
 
@@ -252,17 +250,7 @@ public class FallingWords : MonoBehaviour
             {
                 //Debug.Log($"FOUND word '{word}'");
                 missed = false;
-                for(int y=0;y< WordsOnScreen[i].HeldWord.Length;y++)
-                {
-                    for(int k=0;k<LettersOnScreen.Count;k++)
-                    {
-                        if (chars[y] == LettersOnScreen[k].Letter)
-                        {
-                            LettersOnScreen.RemoveAt(k);
-                        }
-                    }
-                    PlayersList[0].playerScript.ReturnWordInfoToPlayers(i);
-                }
+                PlayersList[0].playerScript.ReturnWordInfoToPlayers(i);
                 RequestToReplaceWordOnSlot(i);
             }
             else
@@ -297,11 +285,22 @@ public class FallingWords : MonoBehaviour
     {
         for(int i=0;i<wordToBreak.Length;i++)
         {
-            LetterToWordStructure nStruct = new LetterToWordStructure();
-            nStruct.Letter = wordToBreak[i];
-            nStruct.IndexOfWord = iteration;
-            LettersOnScreen.Add(nStruct);
+            WordsOnScreen[iteration].HeldLetters.Add(wordToBreak[i]);
         }
+
+        string aro = "";
+        int countlet = 0;
+        foreach (WordAdditionalStructure a in WordsOnScreen)
+        {
+            foreach (char b in a.HeldLetters)
+            {
+                aro += $" {b}";
+                countlet++;
+            }
+        }
+        Debug.Log($"Letters Available {countlet}");
+        Debug.Log($"Letters Array: {aro}");
+
     }
     //Execute Only if server ////////////////////////////////////
     public async void RequestToSpawnWords()
@@ -322,10 +321,10 @@ public class FallingWords : MonoBehaviour
                 string newWord = AdaptiveWordsVolume[targetedIndex];
                 AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
+                SpawnWord(newWord,i);
                 BreakAndSaveWordLetters(newWord, i);
 
-                SpawnWord(newWord,i);
-                PlayersList[0].playerScript.SpawnWordForAll(newWord, i,false,true);
+                PlayersList[0].playerScript.SpawnWordForAll(newWord, i, false, true);
 
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
@@ -350,16 +349,9 @@ public class FallingWords : MonoBehaviour
         //Targets a single word for 'crumble' as part of the "RequestToReplaceWordOnSlot" command
         if (isTargeted)
         {
-            int targetedindex = UnityEngine.Random.Range(0, 49) / 10;
-            for (int y = 0; y < LettersOnScreen.Count; y++)
-            {
-                if (LettersOnScreen[y].IndexOfWord == target && LettersOnScreen[y].Letter == WordsOnScreen[target].HeldWord[targetedindex])
-                {
-                    //Debug.Log($"Crumble letter {LettersOnScreen[y]} from word {WordsOnScreen[target].Word[targetedindex]}");
-                    LettersOnScreen.RemoveAt(y);
-                }
-            }
-            WordsOnScreen[target].Structure.LetterCovers[targetedindex].gameObject.SetActive(false);
+            int targetedindex = UnityEngine.Random.Range(0, 4);
+            WordsOnScreen[target].HeldLetters.RemoveAt(targetedindex);
+            //WordsOnScreen[target].Structure.LetterCovers[targetedindex].gameObject.SetActive(false); Server doesn't need to crumble words
             PlayersList[0].playerScript.ReturnWordCoversOnCrumble(target, targetedindex);
         }
         //Targets all the words for 'crumble' as part of the " RequestToSpawnWords" command
@@ -369,17 +361,24 @@ public class FallingWords : MonoBehaviour
             for (int i = 0; i < WordsOnScreen.Count; i++)
             {
                 int targetedindex = UnityEngine.Random.Range(0, 4);
-                for (int y = 0; y < LettersOnScreen.Count; y++)
-                {
-                    if (LettersOnScreen[y].IndexOfWord == i && LettersOnScreen[y].Letter == WordsOnScreen[i].HeldWord[targetedindex])
-                    {
-                        LettersOnScreen.RemoveAt(y);
-                    }
-                }
+                WordsOnScreen[i].HeldLetters.RemoveAt(targetedindex);
                 //WordsOnScreen[i].LetterCovers[targetedindex].gameObject.SetActive(false);
                 PlayersList[0].playerScript.ReturnWordCoversOnCrumble(i,targetedindex);
             }
         }
+
+        string aro = "";
+        int countlet = 0;
+        foreach (WordAdditionalStructure a in WordsOnScreen)
+        {
+            foreach (char b in a.HeldLetters)
+            {
+                aro += $" {b}";
+                countlet++;
+            }
+        }
+        Debug.Log($"Letters Available {countlet}");
+        Debug.Log($"Letters Array: {aro}");
     }
     //Execute Only if server ///////////////////////////////////
     public void RequestToReplaceWordOnSlot(int slotIndex)
@@ -394,9 +393,9 @@ public class FallingWords : MonoBehaviour
         string newWord = AdaptiveWordsVolume[targetedIndex];
         AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
+        SpawnWord(newWord, slotIndex, true);
         BreakAndSaveWordLetters(newWord, slotIndex);
 
-        SpawnWord(newWord, slotIndex,true);
         PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex,true,true);
 
         PlayersList[0].playerScript.ReturnHideWordAtTarget(slotIndex);
@@ -458,7 +457,6 @@ public class FallingWords : MonoBehaviour
             Destroy(word.Structure.gameObject);
         }
         WordsOnScreen.Clear();
-        LettersOnScreen.Clear();
         ServerLogging.ResetCurrentLogData();
         ServerLogging.RegisterAvailableWordList(AdaptiveWordsVolume.ToArray());
 
