@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -115,30 +114,42 @@ public class FallingWords : MonoBehaviour
     {
         bool missed = true;
         int Hits = 0;
-
+        List<int> IndexOfWord = new List<int>();
+        List<int> IndexOfCover = new List<int>();
         //DebugLog
         Debug.Log($"Received Letter: {letter} from {PlayerUUID}");
 
         for (int i=0;i<WordsOnScreen.Count;i++)
         {
-            for(int y = 0; y < WordsOnScreen[i].HeldLetters.Count;y++)
+            for(int y = 0; y < 5;y++)
             {
-                if (letter == WordsOnScreen[i].HeldLetters[y])
+                if (letter == WordsOnScreen[i].Structure.Letters[y].text.ToLower()[0])
                 {
                     missed = false;
                     Hits++;
-                    PlayersList[0].playerScript.ReturnKeyInfoToPlayers(i, y);
-                    WordsOnScreen[i].HeldLetters.RemoveAt(y);
-                    i = 0;
+                    IndexOfWord.Add(i);
+                    IndexOfCover.Add(y);
                     //StruckLetter(LettersOnScreen[i].Letter, PlayerUUID);
                 }
                 else
                 {
                     //do nothing and wait for loop to finish
                 }
-            }    
+            }
+            for(int y = 0; y < WordsOnScreen[i].HeldLetters.Count;y++)
+            {
+                if (letter == WordsOnScreen[i].HeldLetters[y])
+                {
+                    WordsOnScreen[i].HeldLetters.RemoveAt(y);
+                    i = 0;
+                }
+            }
         }
-
+        for(int i=0;i<IndexOfWord.Count;i++)
+        {
+            PlayersList[0].playerScript.ReturnKeyInfoToPlayers(IndexOfWord[i], IndexOfCover[i]);
+        }
+        
         string aro = "";
         int countlet = 0;
         foreach(WordAdditionalStructure a in WordsOnScreen)
