@@ -193,22 +193,24 @@ public class PlayerToServerCommands : NetworkBehaviour
     [ClientRpc]
     public void ReturnAttemptedWordGlobally(string attemptedWord)
     {
-        FallingWords.instance.AttemptsReturnUI.addAdditionalGlobalWord(attemptedWord);
+        //GlobalsAreDisabled
+        //FallingWords.instance.AttemptsReturnUI.addAdditionalGlobalWord(attemptedWord);
     }
     [TargetRpc]
     public void ReturnAttemptedWordLocally(string attemptedWord)
     {
-        FallingWords.instance.AttemptsReturnUI.addAdditionalLocalWord(attemptedWord);
+        FallingWords.instance.AttemptsReturnUI.SpawnNewText(attemptedWord,true);
     }
     [ClientRpc]
     public void ReturnAttemptedLetterGlobally(char attemptedLetter)
     {
-        FallingWords.instance.AttemptsReturnUI.addAdditionalGlobalLetter(attemptedLetter);
+        //GlobalsAreDisabled
+        //FallingWords.instance.AttemptsReturnUI.addAdditionalGlobalLetter(attemptedLetter);
     }
     [TargetRpc]
     public void ReturnAttemptedLetterLocally(char attemptedLetter)
     {
-        FallingWords.instance.AttemptsReturnUI.addAdditionalLocalLetter(attemptedLetter);
+        FallingWords.instance.AttemptsReturnUI.SpawnNewText(attemptedLetter.ToString(),false);
     }
     [ClientRpc]
     public void ReturnHideWordAtTarget(int indexHit)

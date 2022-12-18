@@ -55,7 +55,7 @@ public class FallingWords : MonoBehaviour
     public RectTransform[] WordToGoLocations = new RectTransform[5];
     public PlayerSlotAccess[] PlayerUI = new PlayerSlotAccess[5];
     public Sprite[] PlayerPortraits = new Sprite[5];
-    public AttemptsReturn AttemptsReturnUI;
+    public AttemptsReturnOverhaul AttemptsReturnUI;
     public bool GameStarted = false;
     private bool apprunning = false;
 
@@ -125,8 +125,6 @@ public class FallingWords : MonoBehaviour
             {
                 if (letter == WordsOnScreen[i].Structure.Letters[y].text.ToLower()[0])
                 {
-                    missed = false;
-                    Hits++;
                     IndexOfWord.Add(i);
                     IndexOfCover.Add(y);
                     //StruckLetter(LettersOnScreen[i].Letter, PlayerUUID);
@@ -140,6 +138,8 @@ public class FallingWords : MonoBehaviour
             {
                 if (letter == WordsOnScreen[i].HeldLetters[y])
                 {
+                    missed = false;
+                    Hits++;
                     WordsOnScreen[i].HeldLetters.RemoveAt(y);
                     i = 0;
                 }
@@ -150,7 +150,7 @@ public class FallingWords : MonoBehaviour
             PlayersList[0].playerScript.ReturnKeyInfoToPlayers(IndexOfWord[i], IndexOfCover[i]);
         }
         
-        string aro = "";
+       /* string aro = "";
         int countlet = 0;
         foreach(WordAdditionalStructure a in WordsOnScreen)
         {
@@ -161,7 +161,7 @@ public class FallingWords : MonoBehaviour
             }
         }
         Debug.Log($"Letters Available {countlet}");
-        Debug.Log($"Letters Array: {aro}");
+        Debug.Log($"Letters Array: {aro}");*/
 
         if(missed)
         {
@@ -299,7 +299,7 @@ public class FallingWords : MonoBehaviour
             WordsOnScreen[iteration].HeldLetters.Add(wordToBreak[i]);
         }
 
-        string aro = "";
+        /*string aro = "";
         int countlet = 0;
         foreach (WordAdditionalStructure a in WordsOnScreen)
         {
@@ -310,7 +310,7 @@ public class FallingWords : MonoBehaviour
             }
         }
         Debug.Log($"Letters Available {countlet}");
-        Debug.Log($"Letters Array: {aro}");
+        Debug.Log($"Letters Array: {aro}");*/
 
     }
     //Execute Only if server ////////////////////////////////////
