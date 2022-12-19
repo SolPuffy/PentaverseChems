@@ -162,6 +162,16 @@ public class PlayerToServerCommands : NetworkBehaviour
     public void RemoveUI(int indexer)
     {
         FallingWords.instance.PlayerUI[indexer].gameObject.SetActive(false);
+        for (int i=indexer; i<4; i++)
+        {
+            /*Sprite auxPortrait = FallingWords.instance.PlayerUI[i].PlayerPortraitImage.sprite;
+            FallingWords.instance.PlayerUI[i].PlayerPortraitImage.sprite = FallingWords.instance.PlayerUI[i + 1].PlayerPortraitImage.sprite;
+            FallingWords.instance.PlayerUI[i + 1].PlayerPortraitImage.sprite = auxPortrait;*/
+
+            PlayerSlotAccess auxSlot = FallingWords.instance.PlayerUI[i];
+            FallingWords.instance.PlayerUI[i] = FallingWords.instance.PlayerUI[i + 1];
+            FallingWords.instance.PlayerUI[i + 1] = auxSlot;
+        }
     }
 
     [ClientRpc]
@@ -187,7 +197,7 @@ public class PlayerToServerCommands : NetworkBehaviour
     public void ReturnKeyInfoToPlayers(int WordIndex,int LetterOnWordIndex)
     {
         FallingWords.instance.WordsOnScreen[WordIndex].Structure.LetterCovers[LetterOnWordIndex].SetActive(false);
-        Debug.Log($"Uncovering {WordIndex},{LetterOnWordIndex}");
+        //Debug.Log($"Uncovering {WordIndex},{LetterOnWordIndex}");
     }
     [ClientRpc]
     public void ReturnWordCoversOnCrumble(int iter,int targetedindex)
