@@ -447,10 +447,10 @@ public class FallingWords : MonoBehaviour
 
         for(int i=0;i<PlayersList.Count;i++)
         {
-            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputs,i);            
 
+            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputs,i);
             PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
-
+            PlayersList[i].playerScript.CorrectPortraitOrder(PlayersList[i].UniqueIdentifier, i);
         }
 
         GameStarted = true;

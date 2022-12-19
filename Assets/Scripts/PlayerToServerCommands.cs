@@ -136,9 +136,24 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
     }
     [TargetRpc]
+    public void CorrectPortraitOrder(string ID,int indexHit)
+    {
+        if(ID == LocalUniqueIdentifier)
+        {
+            PlayerSlotAccess auxSlot = FallingWords.instance.PlayerUI[0];
+            FallingWords.instance.PlayerUI[0] = FallingWords.instance.PlayerUI[indexHit];
+            FallingWords.instance.PlayerUI[indexHit] = auxSlot;
+
+            Sprite auxPortrait = FallingWords.instance.PlayerUI[0].PlayerPortraitImage.sprite;
+            FallingWords.instance.PlayerUI[0].PlayerPortraitImage.sprite = FallingWords.instance.PlayerUI[indexHit].PlayerPortraitImage.sprite;
+            FallingWords.instance.PlayerUI[indexHit].PlayerPortraitImage.sprite = auxPortrait;
+            
+        }    
+    }    
+    [TargetRpc]
     public void ReturnServerPlayerSetting(int newCooldown,int indexer)
     {
-        FallingWords.instance.PlayerUI[indexer].AccessSlotIndicatorImage.color = Color.blue;
+        //FallingWords.instance.PlayerUI[indexer].AccessSlotIndicatorImage.color = Color.blue;
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
         AllowInput = true;
     }
@@ -146,6 +161,7 @@ public class PlayerToServerCommands : NetworkBehaviour
     public void ReturnSetPlayersPortraits(int indexer)
     {
         FallingWords.instance.PlayerUI[indexer].gameObject.SetActive(true);
+
         FallingWords.instance.PlayerUI[indexer].PlayerPortraitImage.sprite = FallingWords.instance.PlayerPortraits[indexer];
     }
 
