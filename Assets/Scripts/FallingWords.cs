@@ -474,4 +474,21 @@ public class FallingWords : MonoBehaviour
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
         AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
     }
+
+    public void removePlayer(string ID)
+    {
+        int indexToRemove = 0;
+        for (int i = 0; i < FallingWords.instance.PlayersList.Count; i++)
+        {
+            if (FallingWords.instance.PlayersList[i].UniqueIdentifier == ID)
+            {
+                Debug.Log($"Removed player {ID} at index {i}");
+                indexToRemove = i;
+                break;             
+            }
+        }
+        FallingWords.instance.PlayersList.RemoveAt(indexToRemove);
+        if (GameStarted) { PlayersList[0].playerScript.RemoveUI(indexToRemove); }
+        
+    }
 }

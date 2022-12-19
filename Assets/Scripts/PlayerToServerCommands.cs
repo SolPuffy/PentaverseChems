@@ -50,7 +50,7 @@ public class PlayerToServerCommands : NetworkBehaviour
         }
         else
         {
-            removePlayer();
+            FallingWords.instance.removePlayer(LocalUniqueIdentifier);
             /*
             if (HitSlapRazboi.instance.InititalSetupDone)
             {
@@ -157,6 +157,13 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.InputsManagement.localInputTargetCooldown = newCooldown;
         AllowInput = true;
     }
+
+    [ClientRpc]
+    public void RemoveUI(int indexer)
+    {
+        FallingWords.instance.PlayerUI[indexer].gameObject.SetActive(false);
+    }
+
     [ClientRpc]
     public void ReturnSetPlayersPortraits(int indexer)
     {
@@ -164,18 +171,8 @@ public class PlayerToServerCommands : NetworkBehaviour
 
         FallingWords.instance.PlayerUI[indexer].PlayerPortraitImage.sprite = FallingWords.instance.PlayerPortraits[indexer];
     }
-
-    [Command]
-    public void removePlayer()
-    {
-        for(int i=0;i<FallingWords.instance.PlayersList.Count;i++)
-        {
-            if (FallingWords.instance.PlayersList[i].UniqueIdentifier == LocalUniqueIdentifier)
-            {
-                FallingWords.instance.PlayersList.RemoveAt(i);
-            }
-        }
-    }    
+    
+    
     [Command]
     public void SendKeyToServer(char key)
     {
