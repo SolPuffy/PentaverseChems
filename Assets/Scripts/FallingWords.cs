@@ -195,9 +195,7 @@ public class FallingWords : MonoBehaviour
     }
 
     public void AwardPoints(string PlayerUUID,bool PositivePoints,int quantity,string LetterWord,bool ContainsWord = false)
-    {
-        //Debug.Log($"Hits quantity :{PositivePoints} {quantity}");
-        //build a system that awards different/multiple points based on type and quantity or if it is a word award extra
+    {        
         foreach(Players player in PlayersList)
         {
             if(player.UniqueIdentifier == PlayerUUID)
@@ -206,18 +204,17 @@ public class FallingWords : MonoBehaviour
                 {
                     if(ContainsWord)
                     {
-                        player.Score += 300;
+                        player.Score += 5;
                     }
                     else
-                    {
-                        //checkvowels
+                    {                        
                         if (Regex.IsMatch(LetterWord,"[aAeEiIoOuU]"))
                         {
-                            player.Score += 95 * quantity;
+                            player.Score += 2 * quantity;
                         }
                         else
                         {
-                            player.Score += 110 * quantity;
+                            player.Score += 2 * quantity;
                         }
                     }
                 }
@@ -225,17 +222,17 @@ public class FallingWords : MonoBehaviour
                 {
                     if(ContainsWord)
                     {
-                        player.Score -= 200;
+                        player.Score -= 2;
                     }
                     else
                     {
-                        player.Score -= 100;
+                        player.Score -= 1;
                     }
                 }
                 break;
             }
         }
-        //Debug.Log($"Score debugging: {PlayersList[0].Score}");
+        
         for(int i = 0; i <PlayersList.Count;i++)
         {
             if(PlayerUUID == PlayersList[i].UniqueIdentifier)
