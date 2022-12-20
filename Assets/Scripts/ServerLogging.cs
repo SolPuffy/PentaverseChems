@@ -13,6 +13,7 @@ public class ServerData
     public string TimeOfLoggingBackup;
     public int PlayerCount;
     public int AverageActionsPerformed;
+    public List<WinningPlacement> WinningPlacements = new List<WinningPlacement>();
     public List<playerActions> ActionsPerformed = new List<playerActions>();
     public serverAssets WordLists = new serverAssets();
 }
@@ -25,6 +26,12 @@ public class playerActions
     public string actionContent;
     public bool isActionSuccessful;
     public string timeOfAction;
+}
+[System.Serializable]
+public class WinningPlacement
+{
+    public string UniqueIdOfPlayer;
+    public int Score;
 }
 [System.Serializable]
 public class serverAssets
@@ -110,6 +117,10 @@ public class ServerLogging : MonoBehaviour
     public static void RegisterStartTime()
     {
         ServerLogging.InstanceLogging.InstanceData.TimeOfGameStart = DateTime.Now.ToString("G");
+    }    
+    public static void RegisterWinningPlacements(WinningPlacement[] placements)
+    {
+        InstanceLogging.InstanceData.WinningPlacements.AddRange(placements);
     }    
     public async static void RequestLogBackup()
     {        

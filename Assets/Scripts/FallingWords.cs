@@ -51,12 +51,14 @@ public class FallingWords : MonoBehaviour
     public GameObject WordEntity;
 
     [Header("Other")]
-    public int CooldownBetweenWordInputs = 300;
+    public int CooldownBetweenWordInputsSeconds = 5;
+    public int InitialTimerStartValueSeconds = 300;
     public RectTransform[] WordToGoLocations = new RectTransform[5];
     public PlayerSlotAccess[] PlayerUI = new PlayerSlotAccess[5];
     public Sprite[] PlayerPortraits = new Sprite[5];
     public AttemptsReturnOverhaul AttemptsReturnUI;
     public bool GameStarted = false;
+    private int TimerCurrentTime;
     private bool apprunning = false;
 
     ////////////////////////////////////////////////////////////
@@ -100,9 +102,51 @@ public class FallingWords : MonoBehaviour
         ServerLogging.RegisterAvailableWordList(AdaptiveWordsVolume.ToArray());
     }
 
+    private void FixedUpdate()
+    {
+        if(GameStarted)
+        {
+            TimerCurrentTime--;
+
+            if(TimerCurrentTime%30 == 0)
+            {
+                PlayersList[0].playerScript.UpdateGameTimers(TimerCurrentTime);
+            }
+        }
+        if(TimerCurrentTime < 1)
+        {
+            EndTheFuckingGameAlreadyJesusFuck();
+        }    
+    }
+    public void EndTheFuckingGameAlreadyJesusFuck()
+    {
+        GameStarted = false;
+        PlayersList[0].playerScript.LockOutInput();
+
+        List<WinningPlacement> newPlacements = new List<WinningPlacement>();
+
+        for(int i = 0;i<PlayersList.Count;i++)
+        {
+            WinningPlacement newPlacement = new WinningPlacement();
+            newPlacement.UniqueIdOfPlayer = PlayersList[i].UniqueIdentifier;
+            newPlacement.Score = PlayersList[i].Score;
+            newPlacements.Add(newPlacement);
+        }
+
+        //DELEGATE
+        //newPlacements.Sort(delegate (WinningPlacement c1, WinningPlacement c2) { return c1.Score.CompareTo(c2.Score); });
+
+        //LAMBDA
+        newPlacements.Sort((a, b) => a.Score.CompareTo(b.Score));
+
+        ServerLogging.RegisterWinningPlacements(newPlacements.ToArray());
+        ServerLogging.RequestLogBackup();
+
+        //SHOW SCENA END LMAO
+    }
     public int SendCooldownOnConnect()
     {
-        return CooldownBetweenWordInputs;
+        return CooldownBetweenWordInputsSeconds * 30;
     }    
 
     //Workaround wierd bug that ocurrs when stopping Async/Await while it's running with a delay
@@ -439,16 +483,20 @@ public class FallingWords : MonoBehaviour
         ServerLogging.AddUsedWordToList(newWord);
     }
 
-    public void StartGame()
-    {             
+    public void StartGame(int TimerSeconds)
+    {
+        InitialTimerStartValueSeconds = TimerSeconds;
 
         for(int i=0;i<PlayersList.Count;i++)
         {
 
-            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputs,i);
+            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputsSeconds * 30,i);
             PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
             PlayersList[i].playerScript.CorrectPortraitOrder(PlayersList[i].UniqueIdentifier, i);
         }
+
+        TimerCurrentTime = InitialTimerStartValueSeconds * 30;
+        PlayersList[0].playerScript.UpdateGameTimers(TimerCurrentTime);
 
         GameStarted = true;
         RequestToSpawnWords();

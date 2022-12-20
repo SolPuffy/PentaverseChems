@@ -81,9 +81,9 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.SpawnWord(newWord,intration,targeted, isLocal);
     }
     [Command]
-    public void StartGame()
+    public void StartGame(int seconds)
     {
-        FallingWords.instance.StartGame();
+        FallingWords.instance.StartGame(seconds);
         KillStart();
     }
 
@@ -127,7 +127,7 @@ public class PlayerToServerCommands : NetworkBehaviour
     [Command]
     public void RefreshCooldown(PlayerToServerCommands local)
     {
-        local.UpdateCooldownTimer(FallingWords.instance.CooldownBetweenWordInputs);
+        local.UpdateCooldownTimer(FallingWords.instance.CooldownBetweenWordInputsSeconds * 30);
     }
     [TargetRpc]
     public void UpdateCooldownTimer(int newCooldown)
@@ -173,6 +173,33 @@ public class PlayerToServerCommands : NetworkBehaviour
             FallingWords.instance.PlayerUI[i + 1] = auxSlot;
         }
     }
+    [ClientRpc]
+    public void UpdateGameTimers(int TimeLeft)
+    {
+        string TimeToTextFormat = "";
+        int minutes = (TimeLeft / 30) / 60;
+        int seconds = (TimeLeft / 30) % 60;
+        if(seconds>=10)
+        {
+            TimeToTextFormat = $"{minutes}:{seconds}";
+        }    
+        else
+        {
+            TimeToTextFormat = $"{minutes}:0{seconds}";
+        }
+
+        //SEND TIME TO TEXT BOI REFERENCE
+
+    }    
+
+    [ClientRpc]
+    public void LockOutInput()
+    {
+        //prevent further letter/word inputs
+        AllowInput = false;
+        //close inputField if it was open when lockout took place
+        FallingWords.instance.InputsManagement.WordInputField.gameObject.SetActive(false);
+    }    
 
     [ClientRpc]
     public void ReturnSetPlayersPortraits(int indexer)
