@@ -16,6 +16,10 @@ public class LocalCommands : MonoBehaviour
     public TMP_InputField WordInputField;
     public BarCooldownVisual cooldownBar;
     [SerializeField] Transform _gameStart;
+    [SerializeField] TMP_Dropdown droopy;
+    [SerializeField] Transform PlayersUI;
+    [SerializeField] Transform EndGame;
+    public TextMeshProUGUI TimerText;
     public static Transform GameStart;
 
 
@@ -182,11 +186,45 @@ public class LocalCommands : MonoBehaviour
 
     public void StartGame()
     {
-        PlayerToServerCommands.localPlayer.StartGame();
+        int gametime = 0;
+        switch (droopy.value)
+        {
+            case 0:
+                gametime = 60;
+                break;
+
+            case 1:
+                gametime = 120;
+                break;
+
+            case 2:
+                gametime = 180;
+                break;
+
+            case 3:
+                gametime = 240;
+                break;
+
+            case 4:
+                gametime = 300;
+                break;
+
+            default:
+                gametime = 60;
+                break;
+
+        }
+        PlayerToServerCommands.localPlayer.StartGame(gametime);
     }
 
     public static void KillStartt()
     {
         GameStart.gameObject.SetActive(false);
+    }
+
+    public void EndGames()
+    {
+        EndGame.gameObject.SetActive(true);
+        PlayersUI.transform.parent = EndGame.transform;
     }
 }

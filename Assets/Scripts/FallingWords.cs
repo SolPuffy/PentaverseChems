@@ -58,7 +58,7 @@ public class FallingWords : MonoBehaviour
     public Sprite[] PlayerPortraits = new Sprite[5];
     public AttemptsReturnOverhaul AttemptsReturnUI;
     public bool GameStarted = false;
-    private int TimerCurrentTime;
+    private int TimerCurrentTime = 9999;
     private bool apprunning = false;
 
     ////////////////////////////////////////////////////////////

@@ -188,6 +188,7 @@ public class PlayerToServerCommands : NetworkBehaviour
             TimeToTextFormat = $"{minutes}:0{seconds}";
         }
 
+        FallingWords.instance.InputsManagement.TimerText.text = TimeToTextFormat;
         //SEND TIME TO TEXT BOI REFERENCE
 
     }    
@@ -199,6 +200,7 @@ public class PlayerToServerCommands : NetworkBehaviour
         AllowInput = false;
         //close inputField if it was open when lockout took place
         FallingWords.instance.InputsManagement.WordInputField.gameObject.SetActive(false);
+        FallingWords.instance.InputsManagement.EndGames();
     }    
 
     [ClientRpc]
