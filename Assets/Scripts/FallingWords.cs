@@ -112,11 +112,11 @@ public class FallingWords : MonoBehaviour
             {
                 PlayersList[0].playerScript.UpdateGameTimers(TimerCurrentTime);
             }
+            if (TimerCurrentTime < 1)
+            {
+                EndTheFuckingGameAlreadyJesusFuck();
+            }
         }
-        if(TimerCurrentTime < 1)
-        {
-            EndTheFuckingGameAlreadyJesusFuck();
-        }    
     }
     public void EndTheFuckingGameAlreadyJesusFuck()
     {
@@ -495,7 +495,7 @@ public class FallingWords : MonoBehaviour
             PlayersList[i].playerScript.CorrectPortraitOrder(PlayersList[i].UniqueIdentifier, i);
         }
 
-        TimerCurrentTime = InitialTimerStartValueSeconds * 30;
+        TimerCurrentTime = 30 * InitialTimerStartValueSeconds;
         PlayersList[0].playerScript.UpdateGameTimers(TimerCurrentTime);
 
         GameStarted = true;
