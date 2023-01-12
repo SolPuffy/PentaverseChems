@@ -24,7 +24,7 @@ public class PlayerToServerCommands : NetworkBehaviour
             else
             {
                 Debug.Log("Game has already started, disconnect");
-                DC();
+                NetworkManager.singleton.StopClient();
             }
         }
         else
@@ -46,7 +46,7 @@ public class PlayerToServerCommands : NetworkBehaviour
 
         if (!HasEntered)
         {
-            //Debug.Log("Player tried to join with no space left");
+            Debug.Log("Player tried to join with no space left");
         }
         else
         {

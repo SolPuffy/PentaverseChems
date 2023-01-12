@@ -20,7 +20,7 @@ public class LetterToWordStructure
     public char Letter;
     public int IndexOfWord;
 }
-public class FallingWords : MonoBehaviour
+public class FallingWords : NetworkBehaviour
 {   
     public static FallingWords instance { get; set; }    
     [Header("Base Script")]
@@ -57,9 +57,10 @@ public class FallingWords : MonoBehaviour
     public PlayerSlotAccess[] PlayerUI = new PlayerSlotAccess[5];
     public Sprite[] PlayerPortraits = new Sprite[5];
     public AttemptsReturnOverhaul AttemptsReturnUI;
-    public bool GameStarted = false;
+    [SyncVar] public bool GameStarted = false;
     private int TimerCurrentTime = 9999;
     private bool apprunning = false;
+    private bool ended = false;
 
     ////////////////////////////////////////////////////////////
 
@@ -104,7 +105,8 @@ public class FallingWords : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(GameStarted)
+        if (!Application.isBatchMode) return;
+        if(GameStarted && !ended)
         {
             TimerCurrentTime--;
 
@@ -120,7 +122,8 @@ public class FallingWords : MonoBehaviour
     }
     public void EndTheFuckingGameAlreadyJesusFuck()
     {
-        GameStarted = false;
+        //GameStarted = false;
+        ended = true;
         PlayersList[0].playerScript.LockOutInput();
 
         List<WinningPlacement> newPlacements = new List<WinningPlacement>();
@@ -506,6 +509,7 @@ public class FallingWords : MonoBehaviour
     public void ResetScene()
     {
         GameStarted = false;
+        ended = false;
         PlayersList.Clear();
         AdaptiveWordsVolume.Clear();
         foreach(WordAdditionalStructure word in WordsOnScreen)
