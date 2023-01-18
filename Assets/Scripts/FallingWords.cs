@@ -293,6 +293,7 @@ public class FallingWords : NetworkBehaviour
     {
         Debug.Log($"Received Word: {word} from {PlayerUUID}");
 
+        word = word.ToLower();
         char[] chars = word.ToCharArray();
         bool missed = true;
 
