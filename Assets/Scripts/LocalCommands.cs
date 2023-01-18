@@ -15,6 +15,7 @@ public class LocalCommands : MonoBehaviour
     public float localInputTargetCooldown = 0;
     public TMP_InputField WordInputField;
     public BarCooldownVisual cooldownBar;
+    public AnimatedLines LocalLinesAnimation;
     [SerializeField] Transform _gameStart;
     [SerializeField] TMP_Dropdown droopy;
     [SerializeField] Transform PlayersUI;
@@ -73,10 +74,36 @@ public class LocalCommands : MonoBehaviour
         {
             Debug.Log("Sending log command");
             PlayerToServerCommands.localPlayer.RequestManualBackup();
-        }          
+        }
+        if (LocalLinesAnimation.IsReady)
+        {
+            for(int i=0;i<9;i++)
+            {
+                if (LocalLinesAnimation.positiveDirection[i])
+                {
+                    LocalLinesAnimation.linesPositions[i].position = Vector3.Lerp(LocalLinesAnimation.linesPositions[i].position, LocalLinesAnimation.InitialPosition[i] + new Vector3(0f, LocalLinesAnimation.movementLimit[i], 0f), LocalLinesAnimation.movementVelocity[i] * LocalLinesAnimation.AverageVelocity);
+                }
+                else
+                {
+                    LocalLinesAnimation.linesPositions[i].position = Vector3.Lerp(LocalLinesAnimation.linesPositions[i].position, LocalLinesAnimation.InitialPosition[i] + new Vector3(0f, -LocalLinesAnimation.movementLimit[i], 0f), LocalLinesAnimation.movementVelocity[i] * LocalLinesAnimation.AverageVelocity);
+                }
+                if (LocalLinesAnimation.positiveDirection[i] && LocalLinesAnimation.linesPositions[i].localPosition.y >= LocalLinesAnimation.movementLimit[i] - 10)
+                {
+                    LocalLinesAnimation.positiveDirection[i] = !LocalLinesAnimation.positiveDirection[i];
+                }
+                if(!LocalLinesAnimation.positiveDirection[i] && LocalLinesAnimation.linesPositions[i].localPosition.y <= -LocalLinesAnimation.movementLimit[i] + 10)
+                {
+                    LocalLinesAnimation.positiveDirection[i] = !LocalLinesAnimation.positiveDirection[i];
+                }
+            }
+        }
     }
     private void FixedUpdate()
     {
+        if (Application.isBatchMode)
+        {
+            return;
+        }
         if(localInputCurrentCooldown > 0)
         {
             localInputCurrentCooldown--;
