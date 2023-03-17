@@ -4,7 +4,8 @@ using UnityEngine;
 using System.IO;
 using System;
 using System.Threading.Tasks;
-using System.Diagnostics;
+using System.Text.RegularExpressions;
+using UnityEngine.Networking;
 
 [System.Serializable]
 public class ServerData
@@ -36,8 +37,14 @@ public class WinningPlacement
 [System.Serializable]
 public class serverAssets
 {
-    public List<string> UsedWords = new List<string>();
-    public string[] AvailableWordsThisGame;
+    public List<usedWords> UsedWordsThisGame = new List<usedWords>();
+    public List<string> AvailableWordsThisGame = new List<string>();
+}
+[System.Serializable]
+public class usedWords
+{
+    public string UsedWord;
+    public int UsedWordIndex;
 }
 public class ServerLogging : MonoBehaviour
 {
@@ -54,7 +61,7 @@ public class ServerLogging : MonoBehaviour
     #region BackupFunctions
     private async Task PerformBackup()
     {        
-        GetFileDataPath();
+        //GetFileDataPath();
         UnityEngine.Debug.Log("performing backup...");
         if (InstanceData.TimeOfGameStart == "")
         {
@@ -65,28 +72,67 @@ public class ServerLogging : MonoBehaviour
         InstanceData.AverageActionsPerformed = Mathf.FloorToInt(InstanceData.ActionsPerformed.Count / InstanceData.PlayerCount);
 
         string JsonOutput = JsonUtility.ToJson(InstanceData, true);
-        await System.IO.File.WriteAllTextAsync(PathToFile, JsonOutput);
+        //await System.IO.File.WriteAllTextAsync(PathToFile, JsonOutput);
 
-        UnityEngine.Debug.Log($"Backup location: {PathToFile}, Backup date: {InstanceData.TimeOfLoggingBackup}");
-    }
-    private async Task ReadBackup(string inputToFile)
-    {
-        if (inputToFile.Length == 9)
+        string key = "d34efaf7-ab1b-4d91-897a-63ed3efc2abf-48326fdb-a038-4ca2-ad29-2b11a170ad0b";
+        string generatedID = generateRandomSaveId();
+        string subDir = "words";
+        byte[] payload = System.Text.Encoding.UTF8.GetBytes(JsonOutput);
+        //Debug.Log($"Trying to send element at adress: http://localhost:3000/api/postfile?subDir={subDir}&fileName={generatedID}");
+        UnityWebRequest request = UnityWebRequest.Post($"http://localhost:3000/api/postfile?subDir={subDir}&fileName={generatedID}","POST");
+        request.SetRequestHeader("x-api-key", key);
+        request.uploadHandler = new UploadHandlerRaw(payload);
+        //request.downloadHandler = new DownloadHandlerBuffer();
+
+        await Task.FromResult(request.SendWebRequest());
+        while (request.result == UnityWebRequest.Result.InProgress)
         {
-            inputToFile = ReadFileDataPath(inputToFile);
-            if (File.Exists(inputToFile))
-            {
-                string JsonInput = await System.IO.File.ReadAllTextAsync(inputToFile);
-                JsonUtility.FromJsonOverwrite(JsonInput, InstanceData);
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("ReadBackup >> File does not exist");
-            }
+            Debug.LogError($"Save attempt in progress! Code:{request.uploadProgress}");
+            await Task.Yield();
+        }
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"Save failed! Error:{request.error}");
+            return;
         }
         else
         {
-            UnityEngine.Debug.LogError("ReadBackup >> Invalid Input");
+            string text = request.downloadHandler.text;
+            Debug.Log(text);
+            Debug.Log("Save Successful");
+        }
+
+        UnityEngine.Debug.Log($"Backup location: {PathToFile}, Backup date: {InstanceData.TimeOfLoggingBackup}");
+    }
+    private Task<bool> CheckBackup(string input)
+    {
+        return Task.FromResult(File.Exists(ReadFileDataPath(input)));
+    }
+    private async Task ReadBackup(string fileIndex)
+    {
+        string key = "d34efaf7-ab1b-4d91-897a-63ed3efc2abf-48326fdb-a038-4ca2-ad29-2b11a170ad0b";
+        string subDir = "words";
+        //Debug.Log($"Trying to find element at adress: http://localhost:3000/api/getfile?subDir={subDir}&fileName={fileIndex}");
+        UnityWebRequest request = UnityWebRequest.Get($"http://localhost:3000/api/getfile?subDir={subDir}&fileName={fileIndex}");
+        request.SetRequestHeader("x-api-key", key);
+
+        await Task.FromResult(request.SendWebRequest());
+        await Task.Delay(1000);
+        while (request.result == UnityWebRequest.Result.InProgress)
+        {
+            await Task.Yield();
+        }
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"Load failed! Error:{request.error}");
+            return;
+        }
+        else
+        {
+            string text = request.downloadHandler.text;
+            Debug.Log(text);
+            JsonUtility.FromJsonOverwrite(text, ServerLogging.InstanceLogging.InstanceData);
+            Debug.Log("Load Successful");
         }
     }
     #endregion
@@ -102,13 +148,13 @@ public class ServerLogging : MonoBehaviour
         action.timeOfAction = DateTime.Now.ToString("T");
         ServerLogging.InstanceLogging.InstanceData.ActionsPerformed.Add(action);
     }
-    public static void AddUsedWordToList(string word)
+    public static void AddUsedWordToList(string wordSelected)
     {
-        ServerLogging.InstanceLogging.InstanceData.WordLists.UsedWords.Add(word);
+        ServerLogging.InstanceLogging.InstanceData.WordLists.UsedWordsThisGame.Add(new usedWords { UsedWord = wordSelected, UsedWordIndex = ServerLogging.InstanceLogging.InstanceData.WordLists.AvailableWordsThisGame.IndexOf(wordSelected)});
     }    
     public static void RegisterAvailableWordList(string[] words)
     {
-        ServerLogging.InstanceLogging.InstanceData.WordLists.AvailableWordsThisGame = words;
+        ServerLogging.InstanceLogging.InstanceData.WordLists.AvailableWordsThisGame.AddRange(words);
     }
     public static void ResetCurrentLogData()
     {
@@ -125,11 +171,14 @@ public class ServerLogging : MonoBehaviour
     public async static void RequestLogBackup()
     {        
         await ServerLogging.InstanceLogging.PerformBackup();
-    }    
-    public async static Task<ServerData> RequestDataFromServer(string fileIndex)
+    }
+    public async static Task<bool> CheckBackupPresence(string input)
+    {
+        return await ServerLogging.InstanceLogging.CheckBackup(input);
+    }
+    public async static Task RequestDataFromServer(string fileIndex)
     {
         await ServerLogging.InstanceLogging.ReadBackup(fileIndex);
-        return ServerLogging.InstanceLogging.InstanceData;
     }    
     #endregion
     #region FilePathingAndGeneration
@@ -158,25 +207,25 @@ public class ServerLogging : MonoBehaviour
     private string ReadFileDataPath(string textInput)
     {
 #if UNITY_EDITOR
-        return Application.dataPath + "/SaveFiles/" + textInput + ".txt";
+        return Application.dataPath + "/SaveFiles/" + "Cards" + textInput + ".json";
 #elif UNITY_ANDROID
-        return Application.persistentDataPath + "/SaveFiles/" + textInput + ".txt";
+        return Application.persistentDataPath + "/SaveFiles/" + "Cards" + textInput + ".json";
 #elif UNITY_IPHONE
-        return Application.persistentDataPath + "/SaveFiles/" + textInput + ".txt";
+        return Application.persistentDataPath + "/SaveFiles/" + "Cards" + textInput + ".json";
 #else
-        return Application.dataPath + "/SaveFiles/" + textInput + ".txt";
+        return Application.dataPath + "/SaveFiles/" + "Cards" + textInput + ".json";
 #endif
     }
     private void GetFileDataPath()
     {
 #if UNITY_EDITOR
-        PathToFile = Application.dataPath + "/SaveFiles/" + generateRandomSaveId() + ".txt";
+        PathToFile = Application.dataPath + "/SaveFiles/" + "Cards" + generateRandomSaveId() + ".json";
 #elif UNITY_ANDROID
-        PathToFile = Application.persistentDataPath + "/SaveFiles/" + generateRandomSaveId() + ".txt";
+        PathToFile = Application.persistentDataPath + "/SaveFiles/" + "Cards" + generateRandomSaveId() + ".json";
 #elif UNITY_IPHONE
-        PathToFile = Application.persistentDataPath + "/SaveFiles/" + generateRandomSaveId() + ".txt";
+        PathToFile = Application.persistentDataPath + "/SaveFiles/" + "Cards" + generateRandomSaveId() + ".json";
 #else
-        PathToFile = Application.dataPath + "/SaveFiles/" + generateRandomSaveId() + ".txt";
+        PathToFile = Application.dataPath + "/SaveFiles/" + "Cards" + generateRandomSaveId() + ".json";
 #endif
     }
     private string getFolderDataPath()

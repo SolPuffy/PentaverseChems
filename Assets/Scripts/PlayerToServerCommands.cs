@@ -18,7 +18,7 @@ public class PlayerToServerCommands : NetworkBehaviour
             localPlayer = this;            
             if (!FallingWords.instance.GameStarted)
             {
-                Debug.Log(SystemInfo.deviceUniqueIdentifier);
+                //Debug.Log(SystemInfo.deviceUniqueIdentifier);
                 AddNewPlayer();               
             }
             else

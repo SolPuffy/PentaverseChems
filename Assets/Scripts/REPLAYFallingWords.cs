@@ -1,4 +1,3 @@
-using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,22 +6,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Players
+public class REPLAYFallingWords : MonoBehaviour
 {
-    //whatever other things
-    public PlayerToServerCommands playerScript;
-    public PlayerSlotAccess playerUI;
-    public string UniqueIdentifier;
-    public int Score;
-}
-public class LetterToWordStructure
-{
-    public char Letter;
-    public int IndexOfWord;
-}
-public class FallingWords : NetworkBehaviour
-{   
-    public static FallingWords instance { get; set; }    
+    public static FallingWords instance { get; set; }
     [Header("Base Script")]
     public List<string> BaseWordsVolume = new List<string>();
     [HideInInspector] public List<string> AdaptiveWordsVolume = new List<string>();
@@ -30,7 +16,7 @@ public class FallingWords : NetworkBehaviour
     [Range(100, 1000)]
     public int AdaptiveWordSearchRange = 100;
 
-    [Range(0,10)]
+    [Range(0, 10)]
     public float MaxSpawnHorizontalDistance = 0;
     [Range(0, 10)]
     public float DelayBetweenWords = 1;
@@ -57,14 +43,14 @@ public class FallingWords : NetworkBehaviour
     public PlayerSlotAccess[] PlayerUI = new PlayerSlotAccess[5];
     public Sprite[] PlayerPortraits = new Sprite[5];
     public AttemptsReturnOverhaul AttemptsReturnUI;
-    [SyncVar] public bool GameStarted = false;
+    public bool GameStarted = false;
     private int TimerCurrentTime = 9999;
     private bool apprunning = false;
-    private bool ended = false;
+    //private bool ended = false;
 
     ////////////////////////////////////////////////////////////
 
-    private void Awake()
+    /*private void Awake()
     {
         if (GameObject.Find("NetworkManager") == null) SceneManager.LoadScene(0);
 
@@ -78,39 +64,40 @@ public class FallingWords : NetworkBehaviour
         }
 
         if (Application.isBatchMode) { Debug.Log("I Am server WordGame"); apprunning = true; }
-    }
+    }*/
+    /*
     private void Start()
     {
         //ONLY RUN AS SERVER
         if (!Application.isBatchMode) return;
 
-        if(textFileAsset != null)
+        if (textFileAsset != null)
         {
             BaseWordsVolume.Clear();
-            BaseWordsVolume = new List<string>(Regex.Split(textFileAsset.text,"\\s"));
+            BaseWordsVolume = new List<string>(Regex.Split(textFileAsset.text, "\\s"));
         }
-
+    */
         /*
         foreach(string a in BaseWordsVolume)
         {
             Debug.Log($"Word in list {a}, stricat?");
         }
-        */
+        *//*
 
         //Take a random chunk of "AdaptiveWordSearch" entities out of the available words to use for gameplay
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
         AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
         ServerLogging.RegisterAvailableWordList(AdaptiveWordsVolume.ToArray());
-    }
-
+    }*/
+    /*
     private void FixedUpdate()
     {
         if (!Application.isBatchMode) return;
-        if(GameStarted && !ended)
+        if (GameStarted && !ended)
         {
             TimerCurrentTime--;
 
-            if(TimerCurrentTime%30 == 0)
+            if (TimerCurrentTime % 30 == 0)
             {
                 PlayersList[0].playerScript.UpdateGameTimers(TimerCurrentTime);
             }
@@ -119,16 +106,17 @@ public class FallingWords : NetworkBehaviour
                 EndTheFuckingGameAlreadyJesusFuck();
             }
         }
-    }
+    }*/
+
     public void EndTheFuckingGameAlreadyJesusFuck()
     {
         //GameStarted = false;
-        ended = true;
+        //ended = true;
         PlayersList[0].playerScript.LockOutInput();
 
         List<WinningPlacement> newPlacements = new List<WinningPlacement>();
 
-        for(int i = 0;i<PlayersList.Count;i++)
+        for (int i = 0; i < PlayersList.Count; i++)
         {
             WinningPlacement newPlacement = new WinningPlacement();
             newPlacement.UniqueIdOfPlayer = PlayersList[i].UniqueIdentifier;
@@ -150,14 +138,14 @@ public class FallingWords : NetworkBehaviour
     public int SendCooldownOnConnect()
     {
         return CooldownBetweenWordInputsSeconds * 30;
-    }    
+    }
 
     //Workaround wierd bug that ocurrs when stopping Async/Await while it's running with a delay
     private void OnApplicationQuit()
     {
         apprunning = false;
     }
-    public void ReceiveLetterFromPlayer(char letter,string PlayerUUID)
+    public void ReceiveLetterFromPlayer(char letter, string PlayerUUID)
     {
         bool missed = true;
         int Hits = 0;
@@ -166,9 +154,9 @@ public class FallingWords : NetworkBehaviour
         //DebugLog
         Debug.Log($"Received Letter: {letter} from {PlayerUUID}");
 
-        for (int i=0;i<WordsOnScreen.Count;i++)
+        for (int i = 0; i < WordsOnScreen.Count; i++)
         {
-            for(int y = 0; y < 5;y++)
+            for (int y = 0; y < 5; y++)
             {
                 if (letter == WordsOnScreen[i].Structure.Letters[y].text.ToLower()[0])
                 {
@@ -181,7 +169,7 @@ public class FallingWords : NetworkBehaviour
                     //do nothing and wait for loop to finish
                 }
             }
-            for(int y = 0; y < WordsOnScreen[i].HeldLetters.Count;y++)
+            for (int y = 0; y < WordsOnScreen[i].HeldLetters.Count; y++)
             {
                 if (letter == WordsOnScreen[i].HeldLetters[y])
                 {
@@ -192,32 +180,32 @@ public class FallingWords : NetworkBehaviour
                 }
             }
         }
-        for(int i=0;i<IndexOfWord.Count;i++)
+        for (int i = 0; i < IndexOfWord.Count; i++)
         {
             PlayersList[0].playerScript.ReturnKeyInfoToPlayers(IndexOfWord[i], IndexOfCover[i]);
         }
-        
-       /* string aro = "";
-        int countlet = 0;
-        foreach(WordAdditionalStructure a in WordsOnScreen)
-        {
-            foreach(char b in a.HeldLetters)
-            {
-                aro += $" {b}";
-                countlet++;
-            }
-        }
-        Debug.Log($"Letters Available {countlet}");
-        Debug.Log($"Letters Array: {aro}");*/
 
-        if(missed)
+        /* string aro = "";
+         int countlet = 0;
+         foreach(WordAdditionalStructure a in WordsOnScreen)
+         {
+             foreach(char b in a.HeldLetters)
+             {
+                 aro += $" {b}";
+                 countlet++;
+             }
+         }
+         Debug.Log($"Letters Available {countlet}");
+         Debug.Log($"Letters Array: {aro}");*/
+
+        if (missed)
         {
-            MissedLetter(PlayerUUID,letter);
+            MissedLetter(PlayerUUID, letter);
         }
         else
         {
             StruckLetter(PlayerUUID, letter, Hits);
-        }    
+        }
         for (int i = 0; i < PlayersList.Count; i++)
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
@@ -231,31 +219,31 @@ public class FallingWords : NetworkBehaviour
     //parcurge toate literele de pe ecran
     //parcurge toate cuvintele de pe ecran si verifica daca litera apasata se regaseste in cuvinte
     //dezactiveaza index-ul literei lovite si scoate cover-ul
-    public void StruckLetter(string PlayerUUID,char LetterStruck,int Hits)
+    public void StruckLetter(string PlayerUUID, char LetterStruck, int Hits)
     {
         AwardPoints(PlayerUUID, true, Hits, LetterStruck.ToString());
     }
 
-    public void MissedLetter(string PlayerUUID,char letter)
+    public void MissedLetter(string PlayerUUID, char letter)
     {
-        AwardPoints(PlayerUUID, false, 1,letter.ToString());
+        AwardPoints(PlayerUUID, false, 1, letter.ToString());
     }
 
-    public void AwardPoints(string PlayerUUID,bool PositivePoints,int quantity,string LetterWord,bool ContainsWord = false)
-    {        
-        foreach(Players player in PlayersList)
+    public void AwardPoints(string PlayerUUID, bool PositivePoints, int quantity, string LetterWord, bool ContainsWord = false)
+    {
+        foreach (Players player in PlayersList)
         {
-            if(player.UniqueIdentifier == PlayerUUID)
+            if (player.UniqueIdentifier == PlayerUUID)
             {
-                if(PositivePoints)
+                if (PositivePoints)
                 {
-                    if(ContainsWord)
+                    if (ContainsWord)
                     {
                         player.Score += 5;
                     }
                     else
-                    {                        
-                        if (Regex.IsMatch(LetterWord,"[aAeEiIoOuU]"))
+                    {
+                        if (Regex.IsMatch(LetterWord, "[aAeEiIoOuU]"))
                         {
                             player.Score += 2 * quantity;
                         }
@@ -267,7 +255,7 @@ public class FallingWords : NetworkBehaviour
                 }
                 else
                 {
-                    if(ContainsWord)
+                    if (ContainsWord)
                     {
                         player.Score -= 2;
                     }
@@ -279,17 +267,17 @@ public class FallingWords : NetworkBehaviour
                 break;
             }
         }
-        
-        for(int i = 0; i <PlayersList.Count;i++)
+
+        for (int i = 0; i < PlayersList.Count; i++)
         {
-            if(PlayerUUID == PlayersList[i].UniqueIdentifier)
+            if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
                 PlayersList[0].playerScript.UpdatePointsBoard(i, PlayersList[i].Score);
             }
-        }    
+        }
     }
-    
-    public void ReceiveWordFromPlayer(string word,string PlayerUUID)
+
+    public void ReceiveWordFromPlayer(string word, string PlayerUUID)
     {
         Debug.Log($"Received Word: {word} from {PlayerUUID}");
 
@@ -298,7 +286,7 @@ public class FallingWords : NetworkBehaviour
         bool missed = true;
 
         //Debug
-        for (int i=0;i<WordsOnScreen.Count;i++)
+        for (int i = 0; i < WordsOnScreen.Count; i++)
         {
             //Debug.Log($"Wtf is going on with {word}");
             //Debug.Log($"Comparing {WordsOnScreen[i].Word} with {word}");
@@ -339,7 +327,7 @@ public class FallingWords : NetworkBehaviour
     }
     public void BreakAndSaveWordLetters(string wordToBreak, int iteration)
     {
-        for(int i=0;i<wordToBreak.Length;i++)
+        for (int i = 0; i < wordToBreak.Length; i++)
         {
             WordsOnScreen[iteration].HeldLetters.Add(wordToBreak[i]);
         }
@@ -371,7 +359,7 @@ public class FallingWords : NetworkBehaviour
 
         for (int i = 0; i < 5; i++)
         {
-            if(apprunning)
+            if (apprunning)
             {
                 int targetedIndex = UnityEngine.Random.Range(0, AdaptiveWordsVolume.Count - 1);
                 string newWord = AdaptiveWordsVolume[targetedIndex];
@@ -380,10 +368,10 @@ public class FallingWords : NetworkBehaviour
 
                 AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
-                SpawnWord(newWord,i);
+                SpawnWord(newWord, i);
                 BreakAndSaveWordLetters(newWord, i);
 
-                PlayersList[0].playerScript.SpawnWordForAll(newWord,i, false, true);
+                PlayersList[0].playerScript.SpawnWordForAll(newWord, i, false, true);
 
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
@@ -394,13 +382,13 @@ public class FallingWords : NetworkBehaviour
             }
         }
 
-        CrumbleWordBits(false);       
+        CrumbleWordBits(false);
         //Debug.Log($"Words Cleared & New Ones Set, remaining in playable list = {AdaptiveWordsVolume.Count}");
     }
     public void CrumbleWordBits(bool isTargeted, int target = -1)
     {
         //Debug.Log(DoWordCrumble);
-        if(!DoWordCrumble)
+        if (!DoWordCrumble)
         {
             //Debug.Log("Word Crumble is disabled, skipping");
             return;
@@ -422,7 +410,7 @@ public class FallingWords : NetworkBehaviour
                 int targetedindex = UnityEngine.Random.Range(0, 4);
                 WordsOnScreen[i].HeldLetters.RemoveAt(targetedindex);
                 //WordsOnScreen[i].LetterCovers[targetedindex].gameObject.SetActive(false);
-                PlayersList[0].playerScript.ReturnWordCoversOnCrumble(i,targetedindex);
+                PlayersList[0].playerScript.ReturnWordCoversOnCrumble(i, targetedindex);
             }
         }
 
@@ -452,14 +440,14 @@ public class FallingWords : NetworkBehaviour
         string newWord = AdaptiveWordsVolume[targetedIndex];
         AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
-        SpawnWord(newWord,slotIndex, true);
+        SpawnWord(newWord, slotIndex, true);
         BreakAndSaveWordLetters(newWord, slotIndex);
 
-        PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex,true,true);
+        PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex, true, true);
 
         PlayersList[0].playerScript.ReturnHideWordAtTarget(slotIndex);
 
-        CrumbleWordBits(true,slotIndex);
+        CrumbleWordBits(true, slotIndex);
 
         //Debug.Log($"Word Replaced at index {slotIndex}, remaining in playable list = {AdaptiveWordsVolume.Count}");
     }
@@ -470,16 +458,16 @@ public class FallingWords : NetworkBehaviour
         int newIndexer = 0;
         if (targeted)
         {
-            WordsOnScreen.Insert(iteration,Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordToGoLocations[iteration]).GetComponent<WordAdditionalStructure>());
+            WordsOnScreen.Insert(iteration, Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordToGoLocations[iteration]).GetComponent<WordAdditionalStructure>());
             newIndexer = iteration;
-        }    
+        }
         else
         {
             WordsOnScreen.Add(Instantiate(WordEntity, WordTransformPosition.localToWorldMatrix.GetPosition() + new Vector3(UnityEngine.Random.Range(-MaxSpawnHorizontalDistance * 100, MaxSpawnHorizontalDistance * 100), 0, 0), Quaternion.identity, WordToGoLocations[iteration]).GetComponent<WordAdditionalStructure>());
             newIndexer = WordsOnScreen.Count - 1;
         }
 
-        if(!localEntity)
+        if (!localEntity)
         {
             WordsOnScreen[newIndexer].HeldWord = newWord;
         }
@@ -494,10 +482,10 @@ public class FallingWords : NetworkBehaviour
     {
         InitialTimerStartValueSeconds = TimerSeconds;
 
-        for(int i=0;i<PlayersList.Count;i++)
+        for (int i = 0; i < PlayersList.Count; i++)
         {
 
-            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputsSeconds * 30,i);
+            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputsSeconds * 30, i);
             PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
             PlayersList[i].playerScript.CorrectPortraitOrder(PlayersList[i].UniqueIdentifier, i);
         }
@@ -513,10 +501,10 @@ public class FallingWords : NetworkBehaviour
     public void ResetScene()
     {
         GameStarted = false;
-        ended = false;
+        //ended = false;
         PlayersList.Clear();
         AdaptiveWordsVolume.Clear();
-        foreach(WordAdditionalStructure word in WordsOnScreen)
+        foreach (WordAdditionalStructure word in WordsOnScreen)
         {
             Destroy(word.Structure.gameObject);
         }
@@ -535,16 +523,16 @@ public class FallingWords : NetworkBehaviour
             if (FallingWords.instance.PlayersList[i].UniqueIdentifier == ID)
             {
                 FallingWords.instance.PlayersList.RemoveAt(i);
-                if (GameStarted) 
+                if (GameStarted)
                 {
                     PlayersList[0].playerScript.RemoveUI(i);
                 }
-                
+
             }
         }
-        
-        
-        
-        
+
+
+
+
     }
 }
