@@ -27,8 +27,8 @@ public class REPLAYFallingWords : MonoBehaviour
     [HideInInspector] public List<WordAdditionalStructure> WordsOnScreen = new List<WordAdditionalStructure>();
     //[HideInInspector] public List<LetterToWordStructure> LettersOnScreen = new List<LetterToWordStructure>();
     [Header("Other Script Components")]
-    public LocalCommands InputsManagement;
-    public ScoringComponent ScoreManagement;
+    //public LocalCommands InputsManagement;
+    //public ScoringComponent ScoreManagement;
 
     [Header("Words Management")]
     public TextAsset textFileAsset;

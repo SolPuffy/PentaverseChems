@@ -5,9 +5,11 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text.RegularExpressions;
 using System;
+using System.Threading.Tasks;
 
 public class ReplayBehavior : MonoBehaviour
 {
+    private ServerData savefileSnapshot;
     public void OnTextChangePreventSymbolsBeforeID(TMP_InputField input)
     {
         if (Regex.IsMatch(input.text[0].ToString(), "-"))
@@ -33,6 +35,7 @@ public class ReplayBehavior : MonoBehaviour
         await ServerLogging.RequestDataFromServer(input.text);
         input.gameObject.SetActive(false);
 
+        savefileSnapshot = await ServerLogging.RequestInstanceData();
         Debug.Log("Begin Save Playback.");
     }
 }

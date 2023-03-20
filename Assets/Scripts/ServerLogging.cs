@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Networking;
 
 [System.Serializable]
@@ -56,11 +55,11 @@ public class ServerLogging : MonoBehaviour
     {
         InstanceLogging = this;
         CheckFolderDataPath();
-        
+
     }
     #region BackupFunctions
     private async Task PerformBackup()
-    {        
+    {
         //GetFileDataPath();
         UnityEngine.Debug.Log("performing backup...");
         if (InstanceData.TimeOfGameStart == "")
@@ -71,7 +70,7 @@ public class ServerLogging : MonoBehaviour
         InstanceData.PlayerCount = FallingWords.instance.PlayersList.Count;
         InstanceData.AverageActionsPerformed = Mathf.FloorToInt(InstanceData.ActionsPerformed.Count / InstanceData.PlayerCount);
 
-        string JsonOutput = JsonUtility.ToJson(InstanceData, true);
+        string JsonOutput = JsonUtility.ToJson(InstanceData);
         //await System.IO.File.WriteAllTextAsync(PathToFile, JsonOutput);
 
         string key = "d34efaf7-ab1b-4d91-897a-63ed3efc2abf-48326fdb-a038-4ca2-ad29-2b11a170ad0b";
@@ -79,7 +78,7 @@ public class ServerLogging : MonoBehaviour
         string subDir = "words";
         byte[] payload = System.Text.Encoding.UTF8.GetBytes(JsonOutput);
         //Debug.Log($"Trying to send element at adress: http://localhost:3000/api/postfile?subDir={subDir}&fileName={generatedID}");
-        UnityWebRequest request = UnityWebRequest.Post($"http://localhost:3000/api/postfile?subDir={subDir}&fileName={generatedID}","POST");
+        UnityWebRequest request = UnityWebRequest.Post($"http://localhost:3000/api/postfile?subDir={subDir}&fileName={generatedID}", "POST");
         request.SetRequestHeader("x-api-key", key);
         request.uploadHandler = new UploadHandlerRaw(payload);
         //request.downloadHandler = new DownloadHandlerBuffer();
@@ -104,10 +103,12 @@ public class ServerLogging : MonoBehaviour
 
         UnityEngine.Debug.Log($"Backup location: {PathToFile}, Backup date: {InstanceData.TimeOfLoggingBackup}");
     }
+    /*Deprecated Saving to local check method
     private Task<bool> CheckBackup(string input)
     {
         return Task.FromResult(File.Exists(ReadFileDataPath(input)));
     }
+    */
     private async Task ReadBackup(string fileIndex)
     {
         string key = "d34efaf7-ab1b-4d91-897a-63ed3efc2abf-48326fdb-a038-4ca2-ad29-2b11a170ad0b";
@@ -130,8 +131,11 @@ public class ServerLogging : MonoBehaviour
         else
         {
             string text = request.downloadHandler.text;
-            Debug.Log(text);
-            JsonUtility.FromJsonOverwrite(text, ServerLogging.InstanceLogging.InstanceData);
+
+            string ClearedText = Regex.Replace(text, @"\\", "");
+            string RetrievedData = ClearedText.Substring(1, ClearedText.Length - 2);
+
+            JsonUtility.FromJsonOverwrite(RetrievedData, ServerLogging.InstanceLogging.InstanceData);
             Debug.Log("Load Successful");
         }
     }
@@ -150,8 +154,8 @@ public class ServerLogging : MonoBehaviour
     }
     public static void AddUsedWordToList(string wordSelected)
     {
-        ServerLogging.InstanceLogging.InstanceData.WordLists.UsedWordsThisGame.Add(new usedWords { UsedWord = wordSelected, UsedWordIndex = ServerLogging.InstanceLogging.InstanceData.WordLists.AvailableWordsThisGame.IndexOf(wordSelected)});
-    }    
+        ServerLogging.InstanceLogging.InstanceData.WordLists.UsedWordsThisGame.Add(new usedWords { UsedWord = wordSelected, UsedWordIndex = ServerLogging.InstanceLogging.InstanceData.WordLists.AvailableWordsThisGame.IndexOf(wordSelected) });
+    }
     public static void RegisterAvailableWordList(string[] words)
     {
         ServerLogging.InstanceLogging.InstanceData.WordLists.AvailableWordsThisGame.AddRange(words);
@@ -163,23 +167,30 @@ public class ServerLogging : MonoBehaviour
     public static void RegisterStartTime()
     {
         ServerLogging.InstanceLogging.InstanceData.TimeOfGameStart = DateTime.Now.ToString("G");
-    }    
+    }
     public static void RegisterWinningPlacements(WinningPlacement[] placements)
     {
         InstanceLogging.InstanceData.WinningPlacements.AddRange(placements);
-    }    
+    }
     public async static void RequestLogBackup()
-    {        
+    {
         await ServerLogging.InstanceLogging.PerformBackup();
     }
+    public async static Task<ServerData> RequestInstanceData()
+    {
+        return await Task.FromResult(ServerLogging.InstanceLogging.InstanceData);
+    }
+    /* Deprecated Saving to local check method
     public async static Task<bool> CheckBackupPresence(string input)
     {
         return await ServerLogging.InstanceLogging.CheckBackup(input);
     }
+    */
     public async static Task RequestDataFromServer(string fileIndex)
     {
         await ServerLogging.InstanceLogging.ReadBackup(fileIndex);
-    }    
+    }
+
     #endregion
     #region FilePathingAndGeneration
     private void CheckFolderDataPath()
