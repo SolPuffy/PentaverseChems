@@ -11,17 +11,19 @@ public class ServerData
 {
     public string TimeOfGameStart;
     public string TimeOfLoggingBackup;
+    public int GameTime;
     public int PlayerCount;
     public int AverageActionsPerformed;
     public List<WinningPlacement> WinningPlacements = new List<WinningPlacement>();
-    public List<playerActions> ActionsPerformed = new List<playerActions>();
+    public List<gameActions> ActionsPerformed = new List<gameActions>();
+    public BoardSetup currentSetup = new BoardSetup();
     public serverAssets WordLists = new serverAssets();
 }
 [System.Serializable]
-public class playerActions
+public class gameActions
 {
-    public int playerInGameIndex;
-    public string playerUniqueID;
+    public int GameIndex;
+    public string identifier;
     public string actionType;
     public string actionContent;
     public bool isActionSuccessful;
@@ -31,7 +33,13 @@ public class playerActions
 public class WinningPlacement
 {
     public string UniqueIdOfPlayer;
+    public int PortraitIndex;
     public int Score;
+}
+[System.Serializable]
+public class BoardSetup
+{
+
 }
 [System.Serializable]
 public class serverAssets
@@ -43,6 +51,7 @@ public class serverAssets
 public class usedWords
 {
     public string UsedWord;
+    public int IndexOnScreen;
     public int UsedWordIndex;
 }
 public class ServerLogging : MonoBehaviour
@@ -118,7 +127,6 @@ public class ServerLogging : MonoBehaviour
         request.SetRequestHeader("x-api-key", key);
 
         await Task.FromResult(request.SendWebRequest());
-        await Task.Delay(1000);
         while (request.result == UnityWebRequest.Result.InProgress)
         {
             await Task.Yield();
@@ -141,20 +149,17 @@ public class ServerLogging : MonoBehaviour
     }
     #endregion
     #region StaticFunctions
-    public static void AddActionFromPlayerToList(int PlayerIndex, string playerID, string actionType, string actionContents, bool actionSuc)
+    public static void AddActionToList(int IdentifyingIndex, string UniqueID, string actionType, string actionContents, bool actionSuc)
     {
-        playerActions action = new playerActions();
-        action.playerInGameIndex = PlayerIndex;
-        action.playerUniqueID = playerID;
-        action.actionType = actionType;
-        action.actionContent = actionContents;
-        action.isActionSuccessful = actionSuc;
-        action.timeOfAction = DateTime.Now.ToString("T");
-        ServerLogging.InstanceLogging.InstanceData.ActionsPerformed.Add(action);
+        ServerLogging.InstanceLogging.InstanceData.ActionsPerformed.Add(new gameActions { GameIndex = IdentifyingIndex, identifier = UniqueID, actionType = actionType, actionContent = actionContents, isActionSuccessful = actionSuc, timeOfAction = DateTime.Now.ToString("T") });
     }
-    public static void AddUsedWordToList(string wordSelected)
+    public static void AddUsedWordToList(string wordSelected,int indexOnScreen)
     {
-        ServerLogging.InstanceLogging.InstanceData.WordLists.UsedWordsThisGame.Add(new usedWords { UsedWord = wordSelected, UsedWordIndex = ServerLogging.InstanceLogging.InstanceData.WordLists.AvailableWordsThisGame.IndexOf(wordSelected) });
+        ServerLogging.InstanceLogging.InstanceData.WordLists.UsedWordsThisGame.Add(new usedWords { UsedWord = wordSelected, IndexOnScreen = indexOnScreen ,UsedWordIndex = ServerLogging.InstanceLogging.InstanceData.WordLists.AvailableWordsThisGame.IndexOf(wordSelected) });
+    }
+    public static void RegisterGameTime(int timeInSeconds)
+    {
+        ServerLogging.InstanceLogging.InstanceData.GameTime = timeInSeconds;
     }
     public static void RegisterAvailableWordList(string[] words)
     {

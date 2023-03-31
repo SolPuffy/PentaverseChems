@@ -242,22 +242,10 @@ public class PlayerToServerCommands : NetworkBehaviour
             FallingWords.instance.WordsOnScreen[indexHit].Structure.Letters[z].color = Color.gray;
         }
     }
-    [ClientRpc]
-    public void ReturnAttemptedWordGlobally(string attemptedWord)
-    {
-        //GlobalsAreDisabled
-        //FallingWords.instance.AttemptsReturnUI.addAdditionalGlobalWord(attemptedWord);
-    }
     [TargetRpc]
     public void ReturnAttemptedWordLocally(string attemptedWord)
     {
         FallingWords.instance.AttemptsReturnUI.SpawnNewText(attemptedWord,true);
-    }
-    [ClientRpc]
-    public void ReturnAttemptedLetterGlobally(char attemptedLetter)
-    {
-        //GlobalsAreDisabled
-        //FallingWords.instance.AttemptsReturnUI.addAdditionalGlobalLetter(attemptedLetter);
     }
     [TargetRpc]
     public void ReturnAttemptedLetterLocally(char attemptedLetter)

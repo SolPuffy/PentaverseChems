@@ -6,13 +6,20 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public class RePlayers
+{
+    //whatever other things
+    public PlayerSlotAccess playerUI;
+    public string UniqueIdentifier;
+    public int Score;
+}
 public class REPLAYFallingWords : MonoBehaviour
 {
-    public static FallingWords instance { get; set; }
+    public static REPLAYFallingWords instance { get; set; }
     [Header("Base Script")]
     public List<string> BaseWordsVolume = new List<string>();
     [HideInInspector] public List<string> AdaptiveWordsVolume = new List<string>();
-    [HideInInspector] public List<Players> PlayersList = new List<Players>();
+    [HideInInspector] public List<RePlayers> PlayersList = new List<RePlayers>();
     [Range(100, 1000)]
     public int AdaptiveWordSearchRange = 100;
 
@@ -29,6 +36,7 @@ public class REPLAYFallingWords : MonoBehaviour
     [Header("Other Script Components")]
     //public LocalCommands InputsManagement;
     //public ScoringComponent ScoreManagement;
+    public ReplayBehavior ReplayScript;
 
     [Header("Words Management")]
     public TextAsset textFileAsset;
@@ -46,14 +54,14 @@ public class REPLAYFallingWords : MonoBehaviour
     public bool GameStarted = false;
     private int TimerCurrentTime = 9999;
     private bool apprunning = false;
+    private int wordsPlayed = 0;
     //private bool ended = false;
 
     ////////////////////////////////////////////////////////////
 
-    /*private void Awake()
+    //Workaround wierd bug that ocurrs when stopping Async/Await while it's running with a delay
+    private void Awake()
     {
-        if (GameObject.Find("NetworkManager") == null) SceneManager.LoadScene(0);
-
         if (instance != null)
         {
             Destroy(this);
@@ -62,85 +70,7 @@ public class REPLAYFallingWords : MonoBehaviour
         {
             instance = this;
         }
-
-        if (Application.isBatchMode) { Debug.Log("I Am server WordGame"); apprunning = true; }
-    }*/
-    /*
-    private void Start()
-    {
-        //ONLY RUN AS SERVER
-        if (!Application.isBatchMode) return;
-
-        if (textFileAsset != null)
-        {
-            BaseWordsVolume.Clear();
-            BaseWordsVolume = new List<string>(Regex.Split(textFileAsset.text, "\\s"));
-        }
-    */
-        /*
-        foreach(string a in BaseWordsVolume)
-        {
-            Debug.Log($"Word in list {a}, stricat?");
-        }
-        *//*
-
-        //Take a random chunk of "AdaptiveWordSearch" entities out of the available words to use for gameplay
-        int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
-        AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
-        ServerLogging.RegisterAvailableWordList(AdaptiveWordsVolume.ToArray());
-    }*/
-    /*
-    private void FixedUpdate()
-    {
-        if (!Application.isBatchMode) return;
-        if (GameStarted && !ended)
-        {
-            TimerCurrentTime--;
-
-            if (TimerCurrentTime % 30 == 0)
-            {
-                PlayersList[0].playerScript.UpdateGameTimers(TimerCurrentTime);
-            }
-            if (TimerCurrentTime < 1)
-            {
-                EndTheFuckingGameAlreadyJesusFuck();
-            }
-        }
-    }*/
-
-    public void EndTheFuckingGameAlreadyJesusFuck()
-    {
-        //GameStarted = false;
-        //ended = true;
-        PlayersList[0].playerScript.LockOutInput();
-
-        List<WinningPlacement> newPlacements = new List<WinningPlacement>();
-
-        for (int i = 0; i < PlayersList.Count; i++)
-        {
-            WinningPlacement newPlacement = new WinningPlacement();
-            newPlacement.UniqueIdOfPlayer = PlayersList[i].UniqueIdentifier;
-            newPlacement.Score = PlayersList[i].Score;
-            newPlacements.Add(newPlacement);
-        }
-
-        //DELEGATE
-        //newPlacements.Sort(delegate (WinningPlacement c1, WinningPlacement c2) { return c1.Score.CompareTo(c2.Score); });
-
-        //LAMBDA
-        newPlacements.Sort((a, b) => a.Score.CompareTo(b.Score));
-
-        ServerLogging.RegisterWinningPlacements(newPlacements.ToArray());
-        ServerLogging.RequestLogBackup();
-
-        //SHOW SCENA END LMAO
     }
-    public int SendCooldownOnConnect()
-    {
-        return CooldownBetweenWordInputsSeconds * 30;
-    }
-
-    //Workaround wierd bug that ocurrs when stopping Async/Await while it's running with a delay
     private void OnApplicationQuit()
     {
         apprunning = false;
@@ -152,7 +82,7 @@ public class REPLAYFallingWords : MonoBehaviour
         List<int> IndexOfWord = new List<int>();
         List<int> IndexOfCover = new List<int>();
         //DebugLog
-        Debug.Log($"Received Letter: {letter} from {PlayerUUID}");
+        //Debug.Log($"Received Letter: {letter} from {PlayerUUID}");
 
         for (int i = 0; i < WordsOnScreen.Count; i++)
         {
@@ -182,7 +112,7 @@ public class REPLAYFallingWords : MonoBehaviour
         }
         for (int i = 0; i < IndexOfWord.Count; i++)
         {
-            PlayersList[0].playerScript.ReturnKeyInfoToPlayers(IndexOfWord[i], IndexOfCover[i]);
+            ReplayScript.ReturnKeyInfoToPlayers(IndexOfWord[i], IndexOfCover[i]);
         }
 
         /* string aro = "";
@@ -210,9 +140,7 @@ public class REPLAYFallingWords : MonoBehaviour
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
-                ServerLogging.AddActionFromPlayerToList(i, PlayerUUID, "LetterSend", letter.ToString(), !missed);
-                //PlayersList[0].playerScript.ReturnAttemptedLetterGlobally(letter);
-                PlayersList[i].playerScript.ReturnAttemptedLetterLocally(letter);
+                ReplayScript.ReturnAttemptedLetterLocally(letter);
             }
         }
     }
@@ -231,7 +159,7 @@ public class REPLAYFallingWords : MonoBehaviour
 
     public void AwardPoints(string PlayerUUID, bool PositivePoints, int quantity, string LetterWord, bool ContainsWord = false)
     {
-        foreach (Players player in PlayersList)
+        foreach (RePlayers player in PlayersList)
         {
             if (player.UniqueIdentifier == PlayerUUID)
             {
@@ -272,14 +200,14 @@ public class REPLAYFallingWords : MonoBehaviour
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
-                PlayersList[0].playerScript.UpdatePointsBoard(i, PlayersList[i].Score);
+                ReplayScript.UpdatePointsBoard(i, PlayersList[i].Score);
             }
         }
     }
 
     public void ReceiveWordFromPlayer(string word, string PlayerUUID)
     {
-        Debug.Log($"Received Word: {word} from {PlayerUUID}");
+        //Debug.Log($"Received Word: {word} from {PlayerUUID}");
 
         word = word.ToLower();
         char[] chars = word.ToCharArray();
@@ -294,7 +222,7 @@ public class REPLAYFallingWords : MonoBehaviour
             {
                 //Debug.Log($"FOUND word '{word}'");
                 missed = false;
-                PlayersList[0].playerScript.ReturnWordInfoToPlayers(i);
+                ReplayScript.ReturnWordInfoToPlayers(i);
                 RequestToReplaceWordOnSlot(i);
             }
             else
@@ -308,9 +236,7 @@ public class REPLAYFallingWords : MonoBehaviour
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
-                ServerLogging.AddActionFromPlayerToList(i, PlayerUUID, "WordSend", word, !missed);
-                //PlayersList[0].playerScript.ReturnAttemptedWordGlobally(word);
-                PlayersList[i].playerScript.ReturnAttemptedWordLocally(word);
+                ReplayScript.ReturnAttemptedWordLocally(word);
             }
         }
 
@@ -355,23 +281,23 @@ public class REPLAYFallingWords : MonoBehaviour
             Destroy(word.Structure.gameObject);
         }
         WordsOnScreen.Clear();
-        PlayersList[0].playerScript.CleanPlayersLists();
+        ReplayScript.CleanPlayersLists();
 
         for (int i = 0; i < 5; i++)
         {
             if (apprunning)
             {
-                int targetedIndex = UnityEngine.Random.Range(0, AdaptiveWordsVolume.Count - 1);
-                string newWord = AdaptiveWordsVolume[targetedIndex];
+                string newWord = ReplayScript.savefileSnapshot.WordLists.AvailableWordsThisGame[ReplayScript.savefileSnapshot.WordLists.UsedWordsThisGame[wordsPlayed].UsedWordIndex];
+                wordsPlayed++;
 
 
 
-                AdaptiveWordsVolume.RemoveAt(targetedIndex);
+                //AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
                 SpawnWord(newWord, i);
                 BreakAndSaveWordLetters(newWord, i);
 
-                PlayersList[0].playerScript.SpawnWordForAll(newWord, i, false, true);
+                //ReplayScript.SpawnWordForAll(newWord, i, false, true);
 
                 await Task.Delay((int)(DelayBetweenWords * 1000));
             }
@@ -399,7 +325,7 @@ public class REPLAYFallingWords : MonoBehaviour
             int targetedindex = UnityEngine.Random.Range(0, 4);
             WordsOnScreen[target].HeldLetters.RemoveAt(targetedindex);
             //WordsOnScreen[target].Structure.LetterCovers[targetedindex].gameObject.SetActive(false); Server doesn't need to crumble words
-            PlayersList[0].playerScript.ReturnWordCoversOnCrumble(target, targetedindex);
+            ReplayScript.ReturnWordCoversOnCrumble(target, targetedindex);
         }
         //Targets all the words for 'crumble' as part of the " RequestToSpawnWords" command
         else
@@ -410,7 +336,7 @@ public class REPLAYFallingWords : MonoBehaviour
                 int targetedindex = UnityEngine.Random.Range(0, 4);
                 WordsOnScreen[i].HeldLetters.RemoveAt(targetedindex);
                 //WordsOnScreen[i].LetterCovers[targetedindex].gameObject.SetActive(false);
-                PlayersList[0].playerScript.ReturnWordCoversOnCrumble(i, targetedindex);
+                ReplayScript.ReturnWordCoversOnCrumble(i, targetedindex);
             }
         }
 
@@ -424,8 +350,8 @@ public class REPLAYFallingWords : MonoBehaviour
                 countlet++;
             }
         }
-        Debug.Log($"Letters Available {countlet}");
-        Debug.Log($"Letters Array: {aro}");
+        //Debug.Log($"Letters Available {countlet}");
+        //Debug.Log($"Letters Array: {aro}");
     }
     //Execute Only if server ///////////////////////////////////
     public void RequestToReplaceWordOnSlot(int slotIndex)
@@ -434,18 +360,18 @@ public class REPLAYFallingWords : MonoBehaviour
         GameObject preparedforDestroy = WordsOnScreen[slotIndex].Structure.gameObject;
         WordsOnScreen.RemoveAt(slotIndex);
         Destroy(preparedforDestroy);
-        PlayersList[0].playerScript.CleanPlayersListIndex(slotIndex);
+        //ReplayScript.CleanPlayersListIndex(slotIndex);
 
-        int targetedIndex = UnityEngine.Random.Range(0, AdaptiveWordsVolume.Count - 1);
-        string newWord = AdaptiveWordsVolume[targetedIndex];
-        AdaptiveWordsVolume.RemoveAt(targetedIndex);
+        string newWord = ReplayScript.savefileSnapshot.WordLists.AvailableWordsThisGame[ReplayScript.savefileSnapshot.WordLists.UsedWordsThisGame[wordsPlayed].UsedWordIndex];
+        wordsPlayed++;
+        //AdaptiveWordsVolume.RemoveAt(targetedIndex);
 
         SpawnWord(newWord, slotIndex, true);
         BreakAndSaveWordLetters(newWord, slotIndex);
 
-        PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex, true, true);
+        //ReplayScript.SpawnWordForAll(newWord, slotIndex, true, true);
 
-        PlayersList[0].playerScript.ReturnHideWordAtTarget(slotIndex);
+        ReplayScript.ReturnHideWordAtTarget(slotIndex);
 
         CrumbleWordBits(true, slotIndex);
 
@@ -472,10 +398,11 @@ public class REPLAYFallingWords : MonoBehaviour
             WordsOnScreen[newIndexer].HeldWord = newWord;
         }
 
+        Debug.Log($"new word:{newWord},iteration:{iteration},targeted:{targeted},localEntity:{localEntity}");
+
         WordsOnScreen[newIndexer].Structure.SendWordToLetters(newWord);
         WordsOnScreen[newIndexer].Structure.PointToTravelTo = WordToGoLocations[iteration].position;
         WordsOnScreen[newIndexer].Structure.TravelSpeed = WordFallingSpeed;
-        ServerLogging.AddUsedWordToList(newWord);
     }
 
     public void StartGame(int TimerSeconds)
@@ -485,17 +412,17 @@ public class REPLAYFallingWords : MonoBehaviour
         for (int i = 0; i < PlayersList.Count; i++)
         {
 
-            PlayersList[i].playerScript.ReturnServerPlayerSetting(CooldownBetweenWordInputsSeconds * 30, i);
-            PlayersList[i].playerScript.ReturnSetPlayersPortraits(i);
-            PlayersList[i].playerScript.CorrectPortraitOrder(PlayersList[i].UniqueIdentifier, i);
+            //ReplayScript.ReturnServerPlayerSetting(CooldownBetweenWordInputsSeconds * 30, i);
+            ReplayScript.ReturnSetPlayersPortraits(i);
+            //ReplayScript.CorrectPortraitOrder(PlayersList[i].UniqueIdentifier, i);
         }
 
         TimerCurrentTime = 30 * InitialTimerStartValueSeconds;
-        PlayersList[0].playerScript.UpdateGameTimers(TimerCurrentTime);
+        ReplayScript.UpdateGameTimers(TimerCurrentTime);
 
+        apprunning = true;
         GameStarted = true;
         RequestToSpawnWords();
-        ServerLogging.RegisterStartTime();
     }
 
     public void ResetScene()
@@ -509,30 +436,8 @@ public class REPLAYFallingWords : MonoBehaviour
             Destroy(word.Structure.gameObject);
         }
         WordsOnScreen.Clear();
-        ServerLogging.ResetCurrentLogData();
-        ServerLogging.RegisterAvailableWordList(AdaptiveWordsVolume.ToArray());
 
         int chunkStart = UnityEngine.Random.Range(0, (BaseWordsVolume.Count - 1 - AdaptiveWordSearchRange));
         AdaptiveWordsVolume.AddRange(BaseWordsVolume.GetRange(chunkStart, AdaptiveWordSearchRange));
-    }
-
-    public void removePlayer(string ID)
-    {
-        for (int i = 0; i < FallingWords.instance.PlayersList.Count; i++)
-        {
-            if (FallingWords.instance.PlayersList[i].UniqueIdentifier == ID)
-            {
-                FallingWords.instance.PlayersList.RemoveAt(i);
-                if (GameStarted)
-                {
-                    PlayersList[0].playerScript.RemoveUI(i);
-                }
-
-            }
-        }
-
-
-
-
     }
 }

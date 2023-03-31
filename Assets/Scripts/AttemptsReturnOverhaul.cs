@@ -12,8 +12,13 @@ public class AttemptsReturnOverhaul : MonoBehaviour
     public Transform AttemptsSpawnParent;
     public List<TextMeshProUGUI> Texts = new List<TextMeshProUGUI>();
 
-    public void SpawnNewText(string context,bool IsWord)
+    public void SpawnNewText(string context,bool IsWord,bool isReplay = false,Transform targetParent = default)
     {
+        if(isReplay)
+        {
+            AttemptsSpawnParent = targetParent;
+        }
+
         int CurrentIndexTarget;
         //spawn the text
         Texts.Add(Instantiate(TextPrefab, Vector3.zero, Quaternion.identity, AttemptsSpawnParent).GetComponent<TextMeshProUGUI>());

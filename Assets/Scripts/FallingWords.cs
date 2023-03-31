@@ -116,11 +116,11 @@ public class FallingWords : NetworkBehaviour
             }
             if (TimerCurrentTime < 1)
             {
-                EndTheFuckingGameAlreadyJesusFuck();
+                assignPlacements();
             }
         }
     }
-    public void EndTheFuckingGameAlreadyJesusFuck()
+    public void assignPlacements()
     {
         //GameStarted = false;
         ended = true;
@@ -132,6 +132,7 @@ public class FallingWords : NetworkBehaviour
         {
             WinningPlacement newPlacement = new WinningPlacement();
             newPlacement.UniqueIdOfPlayer = PlayersList[i].UniqueIdentifier;
+            newPlacement.PortraitIndex = int.Parse(PlayersList[i].playerUI.PlayerPortraitImage.sprite.name);
             newPlacement.Score = PlayersList[i].Score;
             newPlacements.Add(newPlacement);
         }
@@ -222,7 +223,7 @@ public class FallingWords : NetworkBehaviour
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
-                ServerLogging.AddActionFromPlayerToList(i, PlayerUUID, "LetterSend", letter.ToString(), !missed);
+                ServerLogging.AddActionToList(i, PlayerUUID, "LetterSend", letter.ToString(), !missed);
                 //PlayersList[0].playerScript.ReturnAttemptedLetterGlobally(letter);
                 PlayersList[i].playerScript.ReturnAttemptedLetterLocally(letter);
             }
@@ -320,7 +321,7 @@ public class FallingWords : NetworkBehaviour
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
-                ServerLogging.AddActionFromPlayerToList(i, PlayerUUID, "WordSend", word, !missed);
+                ServerLogging.AddActionToList(i, PlayerUUID, "WordSend", word, !missed);
                 //PlayersList[0].playerScript.ReturnAttemptedWordGlobally(word);
                 PlayersList[i].playerScript.ReturnAttemptedWordLocally(word);
             }
@@ -454,7 +455,6 @@ public class FallingWords : NetworkBehaviour
 
         SpawnWord(newWord,slotIndex, true);
         BreakAndSaveWordLetters(newWord, slotIndex);
-
         PlayersList[0].playerScript.SpawnWordForAll(newWord, slotIndex,true,true);
 
         PlayersList[0].playerScript.ReturnHideWordAtTarget(slotIndex);
@@ -487,7 +487,7 @@ public class FallingWords : NetworkBehaviour
         WordsOnScreen[newIndexer].Structure.SendWordToLetters(newWord);
         WordsOnScreen[newIndexer].Structure.PointToTravelTo = WordToGoLocations[iteration].position;
         WordsOnScreen[newIndexer].Structure.TravelSpeed = WordFallingSpeed;
-        ServerLogging.AddUsedWordToList(newWord);
+        ServerLogging.AddUsedWordToList(newWord,iteration);
     }
 
     public void StartGame(int TimerSeconds)
@@ -508,6 +508,7 @@ public class FallingWords : NetworkBehaviour
         GameStarted = true;
         RequestToSpawnWords();
         ServerLogging.RegisterStartTime();
+        ServerLogging.RegisterGameTime(TimerSeconds);
     }
 
     public void ResetScene()
@@ -542,9 +543,5 @@ public class FallingWords : NetworkBehaviour
                 
             }
         }
-        
-        
-        
-        
     }
 }
