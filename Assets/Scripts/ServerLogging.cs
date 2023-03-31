@@ -16,7 +16,6 @@ public class ServerData
     public int AverageActionsPerformed;
     public List<WinningPlacement> WinningPlacements = new List<WinningPlacement>();
     public List<gameActions> ActionsPerformed = new List<gameActions>();
-    public BoardSetup currentSetup = new BoardSetup();
     public serverAssets WordLists = new serverAssets();
 }
 [System.Serializable]
@@ -33,13 +32,7 @@ public class gameActions
 public class WinningPlacement
 {
     public string UniqueIdOfPlayer;
-    public int PortraitIndex;
     public int Score;
-}
-[System.Serializable]
-public class BoardSetup
-{
-
 }
 [System.Serializable]
 public class serverAssets
@@ -149,9 +142,9 @@ public class ServerLogging : MonoBehaviour
     }
     #endregion
     #region StaticFunctions
-    public static void AddActionToList(int IdentifyingIndex, string UniqueID, string actionType, string actionContents, bool actionSuc)
+    public static void AddActionToList(string UniqueID, string actionType, string actionContents)
     {
-        ServerLogging.InstanceLogging.InstanceData.ActionsPerformed.Add(new gameActions { GameIndex = IdentifyingIndex, identifier = UniqueID, actionType = actionType, actionContent = actionContents, isActionSuccessful = actionSuc, timeOfAction = DateTime.Now.ToString("T") });
+        ServerLogging.InstanceLogging.InstanceData.ActionsPerformed.Add(new gameActions {identifier = UniqueID, actionType = actionType, actionContent = actionContents, timeOfAction = DateTime.Now.ToString("T") });
     }
     public static void AddUsedWordToList(string wordSelected,int indexOnScreen)
     {

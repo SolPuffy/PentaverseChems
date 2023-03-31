@@ -132,7 +132,6 @@ public class FallingWords : NetworkBehaviour
         {
             WinningPlacement newPlacement = new WinningPlacement();
             newPlacement.UniqueIdOfPlayer = PlayersList[i].UniqueIdentifier;
-            newPlacement.PortraitIndex = int.Parse(PlayersList[i].playerUI.PlayerPortraitImage.sprite.name);
             newPlacement.Score = PlayersList[i].Score;
             newPlacements.Add(newPlacement);
         }
@@ -166,6 +165,7 @@ public class FallingWords : NetworkBehaviour
         List<int> IndexOfCover = new List<int>();
         //DebugLog
         Debug.Log($"Received Letter: {letter} from {PlayerUUID}");
+        ServerLogging.AddActionToList(PlayerUUID, "LetterSend", letter.ToString());
 
         for (int i=0;i<WordsOnScreen.Count;i++)
         {
@@ -218,12 +218,11 @@ public class FallingWords : NetworkBehaviour
         else
         {
             StruckLetter(PlayerUUID, letter, Hits);
-        }    
+        }
         for (int i = 0; i < PlayersList.Count; i++)
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
-                ServerLogging.AddActionToList(i, PlayerUUID, "LetterSend", letter.ToString(), !missed);
                 //PlayersList[0].playerScript.ReturnAttemptedLetterGlobally(letter);
                 PlayersList[i].playerScript.ReturnAttemptedLetterLocally(letter);
             }
@@ -293,6 +292,7 @@ public class FallingWords : NetworkBehaviour
     public void ReceiveWordFromPlayer(string word,string PlayerUUID)
     {
         Debug.Log($"Received Word: {word} from {PlayerUUID}");
+        ServerLogging.AddActionToList(PlayerUUID, "WordSend", word);
 
         word = word.ToLower();
         char[] chars = word.ToCharArray();
@@ -321,7 +321,6 @@ public class FallingWords : NetworkBehaviour
         {
             if (PlayerUUID == PlayersList[i].UniqueIdentifier)
             {
-                ServerLogging.AddActionToList(i, PlayerUUID, "WordSend", word, !missed);
                 //PlayersList[0].playerScript.ReturnAttemptedWordGlobally(word);
                 PlayersList[i].playerScript.ReturnAttemptedWordLocally(word);
             }

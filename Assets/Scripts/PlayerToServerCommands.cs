@@ -86,7 +86,6 @@ public class PlayerToServerCommands : NetworkBehaviour
         FallingWords.instance.StartGame(seconds);
         KillStart();
     }
-
     [ClientRpc]
     public void KillStart()
     {

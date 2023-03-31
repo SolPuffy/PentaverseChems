@@ -12,6 +12,7 @@ public class ReplayBehavior : MonoBehaviour
 {
     public ServerData savefileSnapshot;
     public TextMeshProUGUI MissingRefferenceToTimerText;
+    public Transform[] MissingRefferenceToReturnText = new Transform[5];
     [Range(0f, 10f)]
     public int ReplayActionDelay = 4;
     public void OnTextChangePreventSymbolsBeforeID(TMP_InputField input)
@@ -53,7 +54,11 @@ public class ReplayBehavior : MonoBehaviour
         {
             AddNewPlayer();
         }
-        REPLAYFallingWords.instance.StartGame(savefileSnapshot.GameTime);
+        for (int i= 0; i < 5; i++)
+        {
+            REPLAYFallingWords.instance.SpawnWord(savefileSnapshot.WordLists.UsedWordsThisGame[i].UsedWord, i);
+        }
+        await Task.Delay(2000);
         //Play Game!
         foreach (gameActions action in savefileSnapshot.ActionsPerformed)
         {
@@ -66,21 +71,32 @@ public class ReplayBehavior : MonoBehaviour
             {
                 case "LetterSend":
                     {
-                        SendKeyToServer(action.actionContent[0], action.identifier);
+                        REPLAYFallingWords.instance.getInput(action.actionType, action.actionContent, action.identifier);
+                        foreach (RePlayers player in REPLAYFallingWords.instance.PlayersList)
+                        {
+                            if (player.UniqueIdentifier == action.identifier)
+                            {
+                                REPLAYFallingWords.instance.AttemptsReturnUI.SpawnNewText(action.actionContent, false, true, player.personalReturnTextLoc);
+                            }
+                        }
                         break;
                     }
                 case "WordSend":
                     {
-                        SendWordToServer(action.actionContent,action.identifier);
+                        REPLAYFallingWords.instance.getInput(action.actionType, action.actionContent.ToLower(), action.identifier);
+                        foreach (RePlayers player in REPLAYFallingWords.instance.PlayersList)
+                        {
+                            if (player.UniqueIdentifier == action.identifier)
+                            {
+                                REPLAYFallingWords.instance.AttemptsReturnUI.SpawnNewText(action.actionContent,true,true,player.personalReturnTextLoc);
+                            }
+                        }
                         break;
                     }
                 default:break;
             }
             await Task.Delay((int)((ReplayActionDelay * 0.25f) * 1000));
         }
-
-        Debug.Log("Reached The End of the Replay");
-
     }
     //[Command]
     public void AddNewPlayer()
@@ -89,26 +105,11 @@ public class ReplayBehavior : MonoBehaviour
         nStruct.UniqueIdentifier = savefileSnapshot.WinningPlacements[REPLAYFallingWords.instance.PlayersList.Count].UniqueIdOfPlayer;
         nStruct.Score = 0;
         nStruct.playerUI = REPLAYFallingWords.instance.PlayerUI[REPLAYFallingWords.instance.PlayersList.Count];
-        REPLAYFallingWords.instance.PlayerUI[REPLAYFallingWords.instance.PlayersList.Count].PlayerPortraitImage.sprite = REPLAYFallingWords.instance.PlayerPortraits[savefileSnapshot.WinningPlacements[REPLAYFallingWords.instance.PlayersList.Count].PortraitIndex];
+        nStruct.personalReturnTextLoc = MissingRefferenceToReturnText[REPLAYFallingWords.instance.PlayersList.Count];
+
+        nStruct.playerUI.gameObject.SetActive(true);
+
         REPLAYFallingWords.instance.PlayersList.Add(nStruct);
-
-
-    }
-    //[ClientRpc]
-    public void CleanPlayersListIndex(int index)
-    {
-        GameObject preparedforDestroy = REPLAYFallingWords.instance.WordsOnScreen[index].Structure.gameObject;
-        REPLAYFallingWords.instance.WordsOnScreen.RemoveAt(index);
-        Destroy(preparedforDestroy);
-    }
-    //[ClientRpc]
-    public void CleanPlayersLists()
-    {
-        foreach (WordAdditionalStructure word in REPLAYFallingWords.instance.WordsOnScreen)
-        {
-            Destroy(word.Structure.gameObject);
-        }
-        REPLAYFallingWords.instance.WordsOnScreen.Clear();
     }
     //[ClientRpc]
     public void UpdateGameTimers(int TimeLeft)
@@ -129,64 +130,15 @@ public class ReplayBehavior : MonoBehaviour
     //SEND TIME TO TEXT BOI REFERENCE
 
 }
-
-//[ClientRpc]
-public void ReturnSetPlayersPortraits(int indexer)
-{
-    REPLAYFallingWords.instance.PlayerUI[indexer].gameObject.SetActive(true);
-
-    REPLAYFallingWords.instance.PlayerUI[indexer].PlayerPortraitImage.sprite = REPLAYFallingWords.instance.PlayerPortraits[indexer];
-}
-
-
-//[Command]
-public void SendKeyToServer(char key,string identifier)
-{
-    REPLAYFallingWords.instance.ReceiveLetterFromPlayer(key, identifier);
-}
-//Command]
-public void SendWordToServer(string word,string identifier)
-{
-    REPLAYFallingWords.instance.ReceiveWordFromPlayer(word, identifier);
-}
-//[ClientRpc]
-public void ReturnKeyInfoToPlayers(int WordIndex, int LetterOnWordIndex)
-{
-    REPLAYFallingWords.instance.WordsOnScreen[WordIndex].Structure.LetterCovers[LetterOnWordIndex].SetActive(false);
-    //Debug.Log($"Uncovering {WordIndex},{LetterOnWordIndex}");
-}
-//[ClientRpc]
-public void ReturnWordCoversOnCrumble(int iter, int targetedindex)
-{
-    REPLAYFallingWords.instance.WordsOnScreen[iter].Structure.LetterCovers[targetedindex].gameObject.SetActive(false);
-}
-//[ClientRpc]
-public void ReturnWordInfoToPlayers(int indexHit)
-{
-    for (int z = 0; z < REPLAYFallingWords.instance.WordsOnScreen[indexHit].HeldWord.Length; z++)
-    {
-        REPLAYFallingWords.instance.WordsOnScreen[indexHit].Structure.LetterCovers[z].gameObject.SetActive(false);
-        REPLAYFallingWords.instance.WordsOnScreen[indexHit].Structure.Letters[z].color = Color.gray;
-    }
-}
 //[TargetRpc]
 public void ReturnAttemptedWordLocally(string attemptedWord)
 {
-    REPLAYFallingWords.instance.AttemptsReturnUI.SpawnNewText(attemptedWord, true);
+    
 }
 //[TargetRpc]
 public void ReturnAttemptedLetterLocally(char attemptedLetter)
 {
     REPLAYFallingWords.instance.AttemptsReturnUI.SpawnNewText(attemptedLetter.ToString(), false);
-}
-//[ClientRpc]
-public void ReturnHideWordAtTarget(int indexHit)
-{
-    for (int z = 0; z < REPLAYFallingWords.instance.WordsOnScreen[indexHit].HeldWord.Length; z++)
-    {
-        REPLAYFallingWords.instance.WordsOnScreen[indexHit].Structure.LetterCovers[z].gameObject.SetActive(true);
-        REPLAYFallingWords.instance.WordsOnScreen[indexHit].Structure.Letters[z].color = Color.white;
-    }
 }
 //[ClientRpc]
 public void UpdatePointsBoard(int index, int UpdatedScore)

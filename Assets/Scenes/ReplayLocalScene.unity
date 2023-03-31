@@ -1675,7 +1675,7 @@ GameObject:
   - component: {fileID: 435415999}
   - component: {fileID: 435415998}
   m_Layer: 5
-  m_Name: ReturnTextParent
+  m_Name: 2ReturnTextParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1690,7 +1690,7 @@ RectTransform:
   m_GameObject: {fileID: 435415996}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.05, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1169512699}
@@ -1732,7 +1732,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 2
-  m_Spacing: 10
+  m_Spacing: 160
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -4367,7 +4367,7 @@ GameObject:
   - component: {fileID: 961325765}
   - component: {fileID: 961325764}
   m_Layer: 5
-  m_Name: ReturnTextParent
+  m_Name: 3ReturnTextParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4382,7 +4382,7 @@ RectTransform:
   m_GameObject: {fileID: 961325762}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.05, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1118047547}
@@ -4424,7 +4424,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 2
-  m_Spacing: 10
+  m_Spacing: 160
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -4484,7 +4484,7 @@ GameObject:
   - component: {fileID: 1040753509}
   - component: {fileID: 1040753508}
   m_Layer: 5
-  m_Name: ReturnTextParent
+  m_Name: 4ReturnTextParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4499,7 +4499,7 @@ RectTransform:
   m_GameObject: {fileID: 1040753506}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.05, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1741751818}
@@ -4541,7 +4541,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 2
-  m_Spacing: 10
+  m_Spacing: 160
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -5618,6 +5618,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7909502607922858446, guid: 7f157227178428a42a45f75bcfdb97f5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 79e9e499121942b4cb92db9b783270db, type: 3}
     - target: {fileID: 8850808441825008267, guid: 7f157227178428a42a45f75bcfdb97f5, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -0.0000076293945
@@ -6211,7 +6215,7 @@ GameObject:
   - component: {fileID: 1603919238}
   - component: {fileID: 1603919237}
   m_Layer: 5
-  m_Name: ReturnTextParent
+  m_Name: 1ReturnTextParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6226,7 +6230,7 @@ RectTransform:
   m_GameObject: {fileID: 1603919235}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.05, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1496413128}
@@ -6268,7 +6272,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 2
-  m_Spacing: 10
+  m_Spacing: 160
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -6449,6 +6453,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7909502607922858446, guid: 7f157227178428a42a45f75bcfdb97f5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 12168a5e9cc48f246b8a48f9e523355b, type: 3}
     - target: {fileID: 8850808441825008267, guid: 7f157227178428a42a45f75bcfdb97f5, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -0.0000076293945
@@ -7150,6 +7158,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7909502607922858446, guid: 7f157227178428a42a45f75bcfdb97f5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: ad72402efa370254ab4eaa58ca08d39e, type: 3}
     - target: {fileID: 8850808441825008267, guid: 7f157227178428a42a45f75bcfdb97f5, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -0.0000076293945
@@ -7526,6 +7538,12 @@ MonoBehaviour:
       UsedWordsThisGame: []
       AvailableWordsThisGame: []
   MissingRefferenceToTimerText: {fileID: 1737810930}
+  MissingRefferenceToReturnText:
+  - {fileID: 2142063780}
+  - {fileID: 1603919236}
+  - {fileID: 435415997}
+  - {fileID: 961325763}
+  - {fileID: 1040753507}
   ReplayActionDelay: 4
 --- !u!114 &1865651921
 MonoBehaviour:
@@ -7751,7 +7769,7 @@ MonoBehaviour:
   textFileAsset: {fileID: 4900000, guid: 840d7f2379872674b8fddd8b94bcf364, type: 3}
   WordTransformPosition: {fileID: 1313880836}
   WordTransformParent: {fileID: 82984440}
-  WordEntity: {fileID: 8723219618963266578, guid: b112dea019ca7a749bc8e64fbeb57db2, type: 3}
+  WordEntity: {fileID: 8723219618963266578, guid: c38308aacf67d3649af82653effaed2c, type: 3}
   CooldownBetweenWordInputsSeconds: 5
   InitialTimerStartValueSeconds: 300
   WordToGoLocations:
@@ -8726,7 +8744,7 @@ GameObject:
   - component: {fileID: 2142063783}
   - component: {fileID: 2142063784}
   m_Layer: 5
-  m_Name: ReturnTextParent
+  m_Name: 0ReturnTextParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8741,7 +8759,7 @@ RectTransform:
   m_GameObject: {fileID: 2142063779}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.05, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1747756667}
@@ -8808,7 +8826,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 2
-  m_Spacing: 10
+  m_Spacing: 160
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -8980,6 +8998,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7909502607922858446, guid: 7f157227178428a42a45f75bcfdb97f5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 4488d50e88abe89489f0ebbe14da8cec, type: 3}
     - target: {fileID: 8850808441825008267, guid: 7f157227178428a42a45f75bcfdb97f5, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -0.000015258789
