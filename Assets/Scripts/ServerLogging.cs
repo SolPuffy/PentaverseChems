@@ -77,10 +77,12 @@ public class ServerLogging : MonoBehaviour
 
         string key = "d34efaf7-ab1b-4d91-897a-63ed3efc2abf-48326fdb-a038-4ca2-ad29-2b11a170ad0b";
         string generatedID = generateRandomSaveId();
+        //subDir pentacards = cards | pentaplanes = planes | pentawords = words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         string subDir = "words";
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         byte[] payload = System.Text.Encoding.UTF8.GetBytes(JsonOutput);
         //Debug.Log($"Trying to send element at adress: http://localhost:3000/api/postfile?subDir={subDir}&fileName={generatedID}");
-        UnityWebRequest request = UnityWebRequest.Post($"http://localhost:3000/api/postfile?subDir={subDir}&fileName={generatedID}", "POST");
+        UnityWebRequest request = UnityWebRequest.Post($"http://188.166.90.161:3000/api/postfile?subDir={subDir}&fileName={generatedID}", "POST");
         request.SetRequestHeader("x-api-key", key);
         request.uploadHandler = new UploadHandlerRaw(payload);
         //request.downloadHandler = new DownloadHandlerBuffer();
@@ -116,7 +118,7 @@ public class ServerLogging : MonoBehaviour
         string key = "d34efaf7-ab1b-4d91-897a-63ed3efc2abf-48326fdb-a038-4ca2-ad29-2b11a170ad0b";
         string subDir = "words";
         //Debug.Log($"Trying to find element at adress: http://localhost:3000/api/getfile?subDir={subDir}&fileName={fileIndex}");
-        UnityWebRequest request = UnityWebRequest.Get($"http://localhost:3000/api/getfile?subDir={subDir}&fileName={fileIndex}");
+        UnityWebRequest request = UnityWebRequest.Get($"http://188.166.90.161:3000/api/getfile?subDir={subDir}&fileName={fileIndex}");
         request.SetRequestHeader("x-api-key", key);
 
         await Task.FromResult(request.SendWebRequest());
