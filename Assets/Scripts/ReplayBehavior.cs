@@ -17,7 +17,7 @@ public class ReplayBehavior : MonoBehaviour
     public int ReplayActionDelay = 4;
     public void OnTextChangePreventSymbolsBeforeID(TMP_InputField input)
     {
-        if (Regex.IsMatch(input.text[0].ToString(), "-"))
+        if (input.text.Length > 0 && Regex.IsMatch(input.text[0].ToString(), "-") )
         {
             input.text = "error: symbols denied";
             input.DeactivateInputField();
