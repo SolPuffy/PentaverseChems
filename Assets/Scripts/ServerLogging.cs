@@ -287,6 +287,7 @@ public class ServerLogging : MonoBehaviour
         return Application.dataPath + "/SaveFiles/" + "Cards" + textInput + ".json";
 #endif
     }
+    /*
     private void GetFileDataPath()
     {
 #if UNITY_EDITOR
@@ -299,6 +300,7 @@ public class ServerLogging : MonoBehaviour
         PathToFile = Application.dataPath + "/SaveFiles/" + "Cards" + generateRandomSaveId() + ".json";
 #endif
     }
+    */
     private string getFolderDataPath()
     {
 #if UNITY_EDITOR

@@ -26,6 +26,7 @@ public class ReplayBehavior : MonoBehaviour
     }
     public async void OnTextSubmitReceiveNewReplayID(TMP_InputField input)
     {
+        /*
         input.DeactivateInputField();
         if (input.text.Length > 9)
         {
@@ -36,7 +37,7 @@ public class ReplayBehavior : MonoBehaviour
             input.text = "error: short ID";
             return;
         }
-
+        */
         await ServerLogging.RequestDataFromServer(input.text);
         input.gameObject.SetActive(false);
 
