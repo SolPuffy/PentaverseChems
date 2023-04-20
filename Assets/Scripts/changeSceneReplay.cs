@@ -7,10 +7,10 @@ public class changeSceneReplay : MonoBehaviour
 {
     public void ButtonInteractionOpenReplayMode()
     {
-        SceneManager.LoadSceneAsync("ReplayLocalScene", LoadSceneMode.Additive);
+        SceneManager.LoadSceneAsync("ReplayLocalScene", LoadSceneMode.Single);
     }
     public void ButtonInteractionReturnToMainScreen()
     {
-        SceneManager.UnloadSceneAsync("ReplayLocalScene");
+        SceneManager.LoadSceneAsync("ConnectScene");
     }
 }

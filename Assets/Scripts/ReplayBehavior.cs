@@ -13,8 +13,13 @@ public class ReplayBehavior : MonoBehaviour
     public ServerData savefileSnapshot;
     public TextMeshProUGUI MissingRefferenceToTimerText;
     public Transform[] MissingRefferenceToReturnText = new Transform[5];
+    public static ReplayBehavior instance;
     [Range(0f, 10f)]
     public int ReplayActionDelay = 4;
+    private void Awake()
+    {
+        instance = this;   
+    }
     public void OnTextChangePreventSymbolsBeforeID(TMP_InputField input)
     {
         if (input.text.Length > 0 && Regex.IsMatch(input.text[0].ToString(), "-") )
@@ -146,6 +151,17 @@ public void UpdatePointsBoard(int index, int UpdatedScore)
 {
     REPLAYFallingWords.instance.PlayerUI[index].AccessScoreText.text = UpdatedScore.ToString();
 }
+
+    public async void ConfirmSelectReplay(string fileName)
+    {
+        await ServerLogging.RequestDataFromServer(fileName);
+        //input.gameObject.SetActive(false);
+
+        savefileSnapshot = await ServerLogging.RequestInstanceData();
+        Debug.Log("Begin Save Playback.");
+        await Playback();
+        Debug.Log("Playback Finished.");
+    }
 
 }
      
