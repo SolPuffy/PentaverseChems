@@ -17,7 +17,11 @@ public class CheckReplayList : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        Destroy(NetworkManager.singleton.gameObject);
+        try
+        {
+            Destroy(NetworkManager.singleton.gameObject);
+        }
+        catch { }
     }
 
     private void Start()

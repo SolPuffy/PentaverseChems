@@ -28,31 +28,9 @@ public class ReplayBehavior : MonoBehaviour
             input.DeactivateInputField();
             return;
         }
-    }
-    public async void OnTextSubmitReceiveNewReplayID(TMP_InputField input)
-    {
-        /*
-        input.DeactivateInputField();
-        if (input.text.Length > 9)
-        {
-            return;
-        }
-        if (input.text.Length < 9)
-        {
-            input.text = "error: short ID";
-            return;
-        }
-        */
-        await ServerLogging.RequestDataFromServer(input.text);
-        input.gameObject.SetActive(false);
+    }   
 
-        savefileSnapshot = await ServerLogging.RequestInstanceData();
-        Debug.Log("Begin Save Playback.");
-        await Playback();
-        Debug.Log("Playback Finished.");
-    }
-
-    public async Task Playback()
+    IEnumerator Playback()
     {
         //Setup Game!
         REPLAYFallingWords.instance.AdaptiveWordsVolume = savefileSnapshot.WordLists.AvailableWordsThisGame;
@@ -64,16 +42,13 @@ public class ReplayBehavior : MonoBehaviour
         {
             REPLAYFallingWords.instance.SpawnWord(savefileSnapshot.WordLists.UsedWordsThisGame[i].UsedWord, i);
         }
-        await Task.Delay(2000);
+       yield return new WaitForSeconds(1.5f);
         //Play Game!
         foreach (gameActions action in savefileSnapshot.ActionsPerformed)
         {
-            if(ReplayActionDelay <= 0)
-            {
-                await Task.Yield();
-            }
 
-            switch(action.actionType)
+            yield return new WaitForSeconds(ReplayActionDelay * 0.25f);
+            switch (action.actionType)
             {
                 case "LetterSend":
                     {
@@ -100,8 +75,7 @@ public class ReplayBehavior : MonoBehaviour
                         break;
                     }
                 default:break;
-            }
-            await Task.Delay((int)((ReplayActionDelay * 0.25f) * 1000));
+            }            
         }
     }
     //[Command]
@@ -159,7 +133,7 @@ public void UpdatePointsBoard(int index, int UpdatedScore)
 
         savefileSnapshot = await ServerLogging.RequestInstanceData();
         Debug.Log("Begin Save Playback.");
-        await Playback();
+        StartCoroutine( Playback());
         Debug.Log("Playback Finished.");
     }
 
